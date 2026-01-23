@@ -174,6 +174,8 @@ foreach ($name in ($RequiredKeys.Keys | Sort-Object)) {
     }) | Out-Null
 }
 
+if ($null -ne $rk) { $rk.Close() }
+
 # -------------------------
 # Affichage (comme ton script Check-FVEPolicy)
 # -------------------------
