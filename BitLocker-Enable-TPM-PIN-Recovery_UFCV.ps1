@@ -46,11 +46,13 @@ Add-Type -AssemblyName WindowsBase
 # ==========================================================
 # Vérification (lecture seule) de la configuration BitLocker (clé FVE)
 # Compare le registre avec les valeurs attendues (aucune correction)
+# Affichage forcé (Out-Host) même si tu stockes le résultat dans une variable
 # ==========================================================
 
-$FveRegPath = "HKLM:\SOFTWARE\Policies\Microsoft\FVE"
+$FveRegPath  = "HKLM:\SOFTWARE\Policies\Microsoft\FVE"
+$FveSubKey   = "SOFTWARE\Policies\Microsoft\FVE"
 
-# Valeurs attendues (MAJ selon tes nouvelles GPO)
+# Valeurs attendues (selon tes nouvelles GPO)
 $RequiredKeys = @{
     "NetworkUnlockProvider"                  = "C:\Windows\System32\nkpprov.dll"
     "OSManageNKP"                            = 1
@@ -81,106 +83,127 @@ $RequiredKeys = @{
     "UseTPMKeyPIN"                           = 0
 }
 
-function Get-RegValueTypeName {
-    param([object]$Value)
-
-    if ($null -eq $Value) { return "Null" }
-    if ($Value -is [string]) { return "String" }
-    if ($Value -is [int])    { return "DWord" }
-    if ($Value -is [long])   { return "QWord" }
-    return $Value.GetType().Name
+function Get-ExpectedRegistryKind($value) {
+    if ($value -is [string]) { return [Microsoft.Win32.RegistryValueKind]::String }
+    if ($value -is [int] -or $value -is [int32]) { return [Microsoft.Win32.RegistryValueKind]::DWord }
+    return [Microsoft.Win32.RegistryValueKind]::Unknown
 }
 
-function Show-FVEPolicyComparison {
-    param(
-        [string]$Path,
-        [hashtable]$ExpectedMap
-    )
+function Normalize-ValueForCompare($v) {
+    if ($null -eq $v) { return $null }
+    if ($v -is [string]) { return $v.Trim() }
+    return $v
+}
 
-    Write-Host ""
-    Write-Host "══════════════════════════════════════════════════════════════" -ForegroundColor DarkGray
-    Write-Host "  BitLocker FVE Policy - Comparaison Registre" -ForegroundColor Cyan
-    Write-Host "══════════════════════════════════════════════════════════════" -ForegroundColor DarkGray
-    Write-Host ""
-
-    $pathExists = Test-Path $Path
-
-    if (-not $pathExists) {
-        Write-Warning "Clé registre absente : $Path"
+function Values-AreEqual($current, $expected) {
+    if ($expected -is [string]) {
+        return ([string]$current).Trim().ToLowerInvariant() -eq $expected.Trim().ToLowerInvariant()
     }
+    return $current -eq $expected
+}
 
-    $results = foreach ($name in ($ExpectedMap.Keys | Sort-Object)) {
-        $expected = $ExpectedMap[$name]
-        $expectedType = if ($expected -is [string]) { "String" } else { "DWord" }
+function Write-Section($title) {
+    Write-Host ""
+    Write-Host "══════════════════════════════════════════════════════════════" -ForegroundColor DarkCyan
+    Write-Host "  $title" -ForegroundColor Cyan
+    Write-Host "══════════════════════════════════════════════════════════════" -ForegroundColor DarkCyan
+    Write-Host ""
+}
 
-        $status = $null
-        $current = $null
-        $currentType = $null
+Write-Section "BitLocker FVE Policy - Comparaison Registre"
 
-        if (-not $pathExists) {
-            $status = "MISSING"
-            $current = "<absent>"
-            $currentType = "<absent>"
-        } else {
-            try {
-                $current = (Get-ItemProperty -Path $Path -Name $name -ErrorAction Stop).$name
-                $currentType = Get-RegValueTypeName $current
+# Ouvre la clé registre (lecture)
+$rk = [Microsoft.Win32.Registry]::LocalMachine.OpenSubKey($FveSubKey, $false)
 
-                # Comparaison valeur + type attendu
-                if (($current -eq $expected) -and ($currentType -eq $expectedType)) {
-                    $status = "OK"
-                } else {
-                    $status = "DIFF/TYPE"
-                }
-            } catch {
-                $status = "MISSING"
-                $current = "<absent>"
-                $currentType = "<absent>"
+if ($null -eq $rk) {
+    Write-Warning "Clé FVE absente : HKLM:\$FveSubKey (tout sera MISSING)"
+}
+
+$results = New-Object System.Collections.Generic.List[object]
+
+foreach ($name in ($RequiredKeys.Keys | Sort-Object)) {
+    $expected     = $RequiredKeys[$name]
+    $expectedKind = Get-ExpectedRegistryKind $expected
+
+    $current     = $null
+    $currentKind = $null
+    $exists      = $false
+
+    if ($rk -ne $null) {
+        try {
+            $current = $rk.GetValue($name, $null)
+            if ($null -ne $current) {
+                $exists = $true
+                try { $currentKind = $rk.GetValueKind($name) } catch { $currentKind = $null }
             }
-        }
-
-        [pscustomobject]@{
-            Name         = $name
-            Status       = $status
-            Expected     = $expected
-            Current      = $current
-            ExpectedType = $expectedType
-            CurrentType  = $currentType
+        } catch {
+            $exists = $false
         }
     }
 
-    $okCount      = ($results | Where-Object { $_.Status -eq "OK" }).Count
-    $diffCount    = ($results | Where-Object { $_.Status -like "DIFF*" }).Count
-    $missingCount = ($results | Where-Object { $_.Status -eq "MISSING" }).Count
+    $currentNorm  = Normalize-ValueForCompare $current
+    $expectedNorm = Normalize-ValueForCompare $expected
 
-    Write-Host "Résumé :" -ForegroundColor White
-    Write-Host ("  OK        : {0}" -f $okCount) -ForegroundColor Green
-    Write-Host ("  DIFF/TYPE : {0}" -f $diffCount) -ForegroundColor Yellow
-    Write-Host ("  MISSING   : {0}" -f $missingCount) -ForegroundColor Red
-    Write-Host ""
-
-    # Afficher détails (si tout est OK, on affiche quand même tout comme ton exemple)
-    Write-Host "Détails (hors OK) :" -ForegroundColor White
-    Write-Host ""
-
-    $nonOk = $results | Where-Object { $_.Status -ne "OK" }
-    if ($nonOk.Count -gt 0) {
-        $nonOk | Format-Table -AutoSize
-        Write-Host ""
-        Write-Warning "Des écarts FVE existent : cela peut empêcher l’activation TPM+PIN tant que les GPO ne sont pas appliquées."
-    } else {
-        $results | Format-Table -AutoSize
+    # Type OK ?
+    $typeOk = $true
+    if ($exists -and $currentKind -ne $null -and $expectedKind -ne [Microsoft.Win32.RegistryValueKind]::Unknown) {
+        if ($expectedKind -eq [Microsoft.Win32.RegistryValueKind]::String) {
+            # accepter ExpandString pour les chemins
+            $typeOk = @([Microsoft.Win32.RegistryValueKind]::String, [Microsoft.Win32.RegistryValueKind]::ExpandString) -contains $currentKind
+        } else {
+            $typeOk = ($currentKind -eq $expectedKind)
+        }
     }
 
-    Write-Host ""
-    Write-Host "Terminé." -ForegroundColor DarkGray
-    Write-Host ""
+    # Valeur OK ?
+    $valueOk = $exists -and (Values-AreEqual $currentNorm $expectedNorm)
 
-    return $results
+    $status =
+        if (-not $exists) { "MISSING" }
+        elseif (-not $typeOk) { "TYPE_MISMATCH" }
+        elseif (-not $valueOk) { "DIFF" }
+        else { "OK" }
+
+    $results.Add([pscustomobject]@{
+        Name         = $name
+        Status       = $status
+        Expected     = $expected
+        Current      = $current
+        ExpectedType = $expectedKind.ToString()
+        CurrentType  = if ($null -eq $currentKind) { $null } else { $currentKind.ToString() }
+    }) | Out-Null
 }
 
-# Exécuter la comparaison (lecture seule)
-$FveAudit = Show-FVEPolicyComparison -Path $FveRegPath -ExpectedMap $RequiredKeys
+# -------------------------
+# Affichage (comme ton script Check-FVEPolicy)
+# -------------------------
+$okCount    = ($results | Where-Object { $_.Status -eq "OK" }).Count
+$diffCount  = ($results | Where-Object { $_.Status -in @("DIFF","TYPE_MISMATCH") }).Count
+$missCount  = ($results | Where-Object { $_.Status -eq "MISSING" }).Count
+
+Write-Host "Résumé :" -ForegroundColor Cyan
+Write-Host "  OK        : $okCount" -ForegroundColor Green
+Write-Host "  DIFF/TYPE : $diffCount" -ForegroundColor Yellow
+Write-Host "  MISSING   : $missCount" -ForegroundColor Red
+Write-Host ""
+
+Write-Host "Détails (hors OK) :" -ForegroundColor Cyan
+$nonOk = $results | Where-Object { $_.Status -ne "OK" }
+
+if ($nonOk.Count -gt 0) {
+    $nonOk | Format-Table -AutoSize Name, Status, ExpectedType, CurrentType, Expected, Current | Out-Host
+} else {
+    Write-Host "(Aucun écart)" -ForegroundColor DarkGray
+}
+
+# Afficher TOUT (comme ton script)
+$results | Format-Table -AutoSize Name, Status, Expected, Current, ExpectedType, CurrentType | Out-Host
+
+Write-Host ""
+Write-Host "Terminé." -ForegroundColor DarkCyan
+
+# (Optionnel) si tu veux garder le résultat pour plus tard :
+$FveAudit = $results
 
 # Gestion du compteur de reports (max 99 fois)
 $CounterPath = "$env:ProgramData\BitLockerActivation\PostponeCount.txt"
