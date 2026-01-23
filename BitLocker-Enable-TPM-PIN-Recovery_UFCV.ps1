@@ -44,87 +44,143 @@ Add-Type -AssemblyName PresentationCore
 Add-Type -AssemblyName WindowsBase
 
 # ==========================================================
-# Vérification et correction complète de la configuration BitLocker (clé FVE)
+# Vérification (lecture seule) de la configuration BitLocker (clé FVE)
+# Compare le registre avec les valeurs attendues (aucune correction)
 # ==========================================================
+
 $FveRegPath = "HKLM:\SOFTWARE\Policies\Microsoft\FVE"
+
+# Valeurs attendues (MAJ selon tes nouvelles GPO)
 $RequiredKeys = @{
-    "NetworkUnlockProvider"              = "C:\Windows\System32\nkpprov.dll"
-    "OSManageNKP"                        = 1
-    "TPMAutoReseal"                      = 1
-    "EncryptionMethodWithXtsOs"          = 7
-    "EncryptionMethodWithXtsFdv"         = 7
-    "EncryptionMethodWithXtsRdv"         = 4
+    "NetworkUnlockProvider"                  = "C:\Windows\System32\nkpprov.dll"
+    "OSManageNKP"                            = 1
+    "TPMAutoReseal"                          = 1
+    "EncryptionMethodWithXtsOs"              = 7
+    "EncryptionMethodWithXtsFdv"             = 7
+    "EncryptionMethodWithXtsRdv"             = 4
     "OSEnablePrebootInputProtectorsOnSlates" = 1
-    "OSEncryptionType"                   = 2
-    "OSRecovery"                         = 1
-    "OSManageDRA"                        = 1
-    "OSRecoveryPassword"                 = 2
-    "OSRecoveryKey"                      = 2
-    "OSHideRecoveryPage"                 = 1
-    "OSActiveDirectoryBackup"            = 1
-    "OSActiveDirectoryInfoToStore"       = 1
-    "OSRequireActiveDirectoryBackup"     = 1
-    "ActiveDirectoryBackup"              = 1
-    "RequireActiveDirectoryBackup"       = 1
-    "ActiveDirectoryInfoToStore"         = 1
-    "UseRecoveryPassword"                = 1
-    "UseRecoveryDrive"                   = 1
-    "UseAdvancedStartup"                 = 1
-    "EnableBDEWithNoTPM"                 = 0
-    "UseTPM"                             = 0
-    "UseTPMPIN"                          = 1
-    "UseTPMKey"                          = 0
-    "UseTPMKeyPIN"                       = 0
+    "OSEncryptionType"                       = 2
+    "OSRecovery"                             = 1
+    "OSManageDRA"                            = 1
+    "OSRecoveryPassword"                     = 2
+    "OSRecoveryKey"                          = 2
+    "OSHideRecoveryPage"                     = 1
+    "OSActiveDirectoryBackup"                = 1
+    "OSActiveDirectoryInfoToStore"           = 1
+    "OSRequireActiveDirectoryBackup"         = 1
+    "ActiveDirectoryBackup"                  = 1
+    "RequireActiveDirectoryBackup"           = 1
+    "ActiveDirectoryInfoToStore"             = 1
+    "UseRecoveryPassword"                    = 1
+    "UseRecoveryDrive"                       = 1
+    "UseAdvancedStartup"                     = 1
+    "EnableBDEWithNoTPM"                     = 0
+    "UseTPM"                                 = 0
+    "UseTPMPIN"                              = 1
+    "UseTPMKey"                              = 0
+    "UseTPMKeyPIN"                           = 0
 }
 
-if (-not (Test-Path $FveRegPath)) {
-    Write-Host "🔧 Clé de registre FVE absente, création..." -ForegroundColor Yellow
-    New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft" -Name "FVE" -Force | Out-NullRe
+function Get-RegValueTypeName {
+    param([object]$Value)
+
+    if ($null -eq $Value) { return "Null" }
+    if ($Value -is [string]) { return "String" }
+    if ($Value -is [int])    { return "DWord" }
+    if ($Value -is [long])   { return "QWord" }
+    return $Value.GetType().Name
 }
 
-$MissingOrInvalid = @()
-
-foreach ($key in $RequiredKeys.Keys) {
-    $expected = $RequiredKeys[$key]
-    try {
-        $current = (Get-ItemProperty -Path $FveRegPath -Name $key -ErrorAction Stop).$key
-        if ($current -ne $expected) {
-            Write-Host "🛠️ Correction de la valeur $key (actuelle : $current, attendue : $expected)" -ForegroundColor Yellow
-            if ($expected -is [string]) {
-                Set-ItemProperty -Path $FveRegPath -Name $key -Value $expected -Type String -Force
-            } else {
-                Set-ItemProperty -Path $FveRegPath -Name $key -Value $expected -Type DWord -Force
-            }
-            $MissingOrInvalid += $key
-        }
-    } catch {
-        Write-Host "🆕 Création de la valeur manquante : $key = $expected" -ForegroundColor Yellow
-        if ($expected -is [string]) {
-            New-ItemProperty -Path $FveRegPath -Name $key -Value $expected -PropertyType String -Force | Out-Null
-        } else {
-            New-ItemProperty -Path $FveRegPath -Name $key -Value $expected -PropertyType DWord -Force | Out-Null
-        }
-        $MissingOrInvalid += $key
-    }
-}
-
-if ($MissingOrInvalid.Count -gt 0) {
-    Write-Host "🧩 Des paramètres BitLocker manquants ou incorrects ont été corrigés." -ForegroundColor Yellow
-    Write-Host "⏳ Application immédiate des stratégies locales..." -ForegroundColor Cyan
-    gpupdate /target:computer /force | Out-Null
-
-    [System.Windows.MessageBox]::Show(
-        "Des paramètres BitLocker requis ont été ajustés.`n`n" +
-        "Veuillez redémarrer votre ordinateur avant de relancer le script.",
-        "Redémarrage requis", "OK", "Information"
+function Show-FVEPolicyComparison {
+    param(
+        [string]$Path,
+        [hashtable]$ExpectedMap
     )
 
-    New-Item -ItemType File -Path "$env:ProgramData\BitLockerActivation\PendingReboot.flag" -Force | Out-Null
-    Write-Host "🔁 Redémarrage requis pour appliquer les changements." -ForegroundColor Yellow
-    exit 0
+    Write-Host ""
+    Write-Host "══════════════════════════════════════════════════════════════" -ForegroundColor DarkGray
+    Write-Host "  BitLocker FVE Policy - Comparaison Registre" -ForegroundColor Cyan
+    Write-Host "══════════════════════════════════════════════════════════════" -ForegroundColor DarkGray
+    Write-Host ""
+
+    $pathExists = Test-Path $Path
+
+    if (-not $pathExists) {
+        Write-Warning "Clé registre absente : $Path"
+    }
+
+    $results = foreach ($name in ($ExpectedMap.Keys | Sort-Object)) {
+        $expected = $ExpectedMap[$name]
+        $expectedType = if ($expected -is [string]) { "String" } else { "DWord" }
+
+        $status = $null
+        $current = $null
+        $currentType = $null
+
+        if (-not $pathExists) {
+            $status = "MISSING"
+            $current = "<absent>"
+            $currentType = "<absent>"
+        } else {
+            try {
+                $current = (Get-ItemProperty -Path $Path -Name $name -ErrorAction Stop).$name
+                $currentType = Get-RegValueTypeName $current
+
+                # Comparaison valeur + type attendu
+                if (($current -eq $expected) -and ($currentType -eq $expectedType)) {
+                    $status = "OK"
+                } else {
+                    $status = "DIFF/TYPE"
+                }
+            } catch {
+                $status = "MISSING"
+                $current = "<absent>"
+                $currentType = "<absent>"
+            }
+        }
+
+        [pscustomobject]@{
+            Name         = $name
+            Status       = $status
+            Expected     = $expected
+            Current      = $current
+            ExpectedType = $expectedType
+            CurrentType  = $currentType
+        }
+    }
+
+    $okCount      = ($results | Where-Object { $_.Status -eq "OK" }).Count
+    $diffCount    = ($results | Where-Object { $_.Status -like "DIFF*" }).Count
+    $missingCount = ($results | Where-Object { $_.Status -eq "MISSING" }).Count
+
+    Write-Host "Résumé :" -ForegroundColor White
+    Write-Host ("  OK        : {0}" -f $okCount) -ForegroundColor Green
+    Write-Host ("  DIFF/TYPE : {0}" -f $diffCount) -ForegroundColor Yellow
+    Write-Host ("  MISSING   : {0}" -f $missingCount) -ForegroundColor Red
+    Write-Host ""
+
+    # Afficher détails (si tout est OK, on affiche quand même tout comme ton exemple)
+    Write-Host "Détails (hors OK) :" -ForegroundColor White
+    Write-Host ""
+
+    $nonOk = $results | Where-Object { $_.Status -ne "OK" }
+    if ($nonOk.Count -gt 0) {
+        $nonOk | Format-Table -AutoSize
+        Write-Host ""
+        Write-Warning "Des écarts FVE existent : cela peut empêcher l’activation TPM+PIN tant que les GPO ne sont pas appliquées."
+    } else {
+        $results | Format-Table -AutoSize
+    }
+
+    Write-Host ""
+    Write-Host "Terminé." -ForegroundColor DarkGray
+    Write-Host ""
+
+    return $results
 }
 
-Write-Host "✅ Configuration BitLocker (registre/GPO) complète et valide." -ForegroundColor Green
+# Exécuter la comparaison (lecture seule)
+$FveAudit = Show-FVEPolicyComparison -Path $FveRegPath -ExpectedMap $RequiredKeys
 
 # Gestion du compteur de reports (max 99 fois)
 $CounterPath = "$env:ProgramData\BitLockerActivation\PostponeCount.txt"
