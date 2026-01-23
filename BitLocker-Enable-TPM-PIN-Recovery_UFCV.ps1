@@ -33,9 +33,10 @@ Set-WinUILanguageOverride fr-FR
 
 Write-Host "[INFO] Encodage UTF-8 (BOM) et culture fr-FR appliqués." -ForegroundColor Cyan
 
-# Vérification des prérequis (avertissement si non-System)
-if (-not ([System.Security.Principal.WindowsIdentity]::GetCurrent().User -eq 'SYSTEM')) {
-    Write-Warning "Script conçu pour contexte Système ; adaptez si nécessaire."
+# Vérification des prérequis (avertissement si non-SYSTEM / LocalSystem)
+$SystemSid = New-Object System.Security.Principal.SecurityIdentifier('S-1-5-18')
+if ([System.Security.Principal.WindowsIdentity]::GetCurrent().User -ne $SystemSid) {
+    Write-Warning "Script conçu pour le contexte SYSTEM (LocalSystem). Exécutez-le en tant que SYSTEM si nécessaire."
 }
 
 # Charger les assemblies WPF correctement
