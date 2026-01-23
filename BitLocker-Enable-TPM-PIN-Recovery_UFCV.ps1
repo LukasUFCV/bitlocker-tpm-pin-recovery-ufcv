@@ -71,10 +71,10 @@ $RequiredKeys = @{
     "UseRecoveryDrive"                   = 1
     "UseAdvancedStartup"                 = 1
     "EnableBDEWithNoTPM"                 = 0
-    "UseTPM"                             = 2
-    "UseTPMPIN"                          = 2
-    "UseTPMKey"                          = 2
-    "UseTPMKeyPIN"                       = 2
+    "UseTPM"                             = 0
+    "UseTPMPIN"                          = 1
+    "UseTPMKey"                          = 0
+    "UseTPMKeyPIN"                       = 0
 }
 
 if (-not (Test-Path $FveRegPath)) {
