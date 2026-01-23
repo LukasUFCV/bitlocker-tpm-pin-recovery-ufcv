@@ -1,5 +1,5 @@
 ﻿# ==========================================================
-#  Script d’activation BitLocker avec interface graphique
+#  Script d'activation BitLocker avec interface graphique
 #  Version : UFCV GUI 1.0
 #  Nom de fichier : BitLocker-Enable-TPM-PIN-Recovery_UFCV.ps1
 #  Fonction : Activation du chiffrement BitLocker avec TPM + PIN + Recovery,
@@ -14,14 +14,14 @@
 
 # ==========================================================
 # Encodage & Culture - Contexte France
-# Force l’encodage UTF-8 avec BOM pour la console et les sorties
+# Force l'encodage UTF-8 avec BOM pour la console et les sorties
 # Configure la culture française pour les formats de date et nombre
 # ==========================================================
 
-# Forcer l’encodage UTF-8 avec BOM pour la console (accents, emoji)
+# Forcer l'encodage UTF-8 avec BOM pour la console (accents, emoji)
 [Console]::OutputEncoding = New-Object System.Text.UTF8Encoding($true)
 
-# Forcer l’encodage par défaut de PowerShell (utile pour les fichiers)
+# Forcer l'encodage par défaut de PowerShell (utile pour les fichiers)
 $OutputEncoding = [System.Text.UTF8Encoding]::new($true)
 
 # Définir la culture française (France)
@@ -229,20 +229,20 @@ if ($CurrentPostponeCount -ge $MaxPostpones) {
     Write-Warning "Limite de reports atteinte. Activation BitLocker obligatoire."
 }
 
-# Vérification préalable de l’état BitLocker avant affichage GUI
+# Vérification préalable de l'état BitLocker avant affichage GUI
 $blv = Get-BitLockerVolume -MountPoint "C:"
 
 switch ($blv.VolumeStatus) {
     'EncryptionInProgress' {
         [System.Windows.MessageBox]::Show(
-            "Un chiffrement BitLocker est déjà en cours sur ce poste. Patientez jusqu’à la fin avant de relancer.",
+            "Un chiffrement BitLocker est déjà en cours sur ce poste. Patientez jusqu'à la fin avant de relancer.",
             "Information", "OK", "Information"
         )
         exit
     }
     'DecryptionInProgress' {
         [System.Windows.MessageBox]::Show(
-            "Un déchiffrement BitLocker est actuellement en cours. Attendez qu’il soit terminé avant de relancer.",
+            "Un déchiffrement BitLocker est actuellement en cours. Attendez qu'il soit terminé avant de relancer.",
             "Information", "OK", "Information"
         )
         exit
@@ -250,7 +250,7 @@ switch ($blv.VolumeStatus) {
     'FullyEncrypted' {
         if ($blv.ProtectionStatus -eq 'On') {
             [System.Windows.MessageBox]::Show(
-                "BitLocker est déjà activé sur ce poste. Aucune action n’est nécessaire.",
+                "BitLocker est déjà activé sur ce poste. Aucune action n'est nécessaire.",
                 "Information", "OK", "Information"
             )
             exit
@@ -480,7 +480,7 @@ $Xaml = @"
                 <!-- Texte explicatif - Paragraphe 1 avec meilleur contraste -->
                 <TextBlock Grid.Row="2" 
                            HorizontalAlignment="Left" 
-                           Text="La sécurité de vos données est essentielle pour l’UFCV. BitLocker chiffre le contenu de votre disque afin de rendre les informations illisibles en cas de vol ou d’accès non autorisé. Vos fichiers restent ainsi protégés, même si l’ordinateur quitte les locaux de l’UFCV." 
+                           Text="La sécurité de vos données est essentielle pour l'UFCV. BitLocker chiffre le contenu de votre disque afin de rendre les informations illisibles en cas de vol ou d'accès non autorisé. Vos fichiers restent ainsi protégés, même si l'ordinateur quitte les locaux de l'UFCV." 
                            FontSize="12" 
                            Margin="0,0,0,16" 
                            Foreground="#D0D0D0" 
@@ -490,7 +490,7 @@ $Xaml = @"
                 <!-- Texte explicatif - Paragraphe 2 avec meilleur contraste -->
                 <TextBlock Grid.Row="3" 
                            HorizontalAlignment="Left" 
-                           Text="Il vous suffit maintenant de choisir un code PIN à 6 chiffres, de préférence le même que celui utilisé pour ouvrir votre session, afin de sécuriser l’accès à votre poste au démarrage." 
+                           Text="Il vous suffit maintenant de choisir un code PIN à 6 chiffres, de préférence le même que celui utilisé pour ouvrir votre session, afin de sécuriser l'accès à votre poste au démarrage." 
                            FontSize="12" 
                            Margin="0,0,0,32" 
                            Foreground="#D0D0D0" 
@@ -620,13 +620,13 @@ try {
     $Window = [Windows.Markup.XamlReader]::Load($reader)
     Write-Output "XAML chargé avec succès."
     
-    # Démarrer l’animation de fade-in
+    # Démarrer l'animation de fade-in
     $Window.Opacity = 0
     $fadeInStoryboard = $Window.Resources["WindowFadeIn"]
     $fadeInStoryboard.Begin($Window)
     
 } catch {
-    Write-Error "Erreur lors du parsing du XAML : $($_.Exception.Message). Vérifiez l’encodage du fichier (UTF-8 BOM recommandé)."
+    Write-Error "Erreur lors du parsing du XAML : $($_.Exception.Message). Vérifiez l'encodage du fichier (UTF-8 BOM recommandé)."
     exit 1
 }
 
@@ -649,10 +649,10 @@ if (-not $PinInput -or -not $PinConfirm -or -not $PinInputBorder -or -not $PinCo
 $RemainingPostpones = $MaxPostpones - $CurrentPostponeCount
 $PostponeCounter.Text = "Reports restants : $RemainingPostpones/$MaxPostpones"
 
-# Variable pour suivre l’action de l’utilisateur
+# Variable pour suivre l'action de l'utilisateur
 $script:UserAction = $null
 
-# Changer la couleur selon l’urgence avec des couleurs plus vibrantes
+# Changer la couleur selon l'urgence avec des couleurs plus vibrantes
 if ($RemainingPostpones -le 1) {
     $PostponeCounter.Foreground = "#EF5350"
 } elseif ($RemainingPostpones -le 2) {
@@ -800,7 +800,7 @@ function Update-PinBorderColors {
     }
 }
 
-# Fonction pour mettre à jour l’état du bouton Valider
+# Fonction pour mettre à jour l'état du bouton Valider
 function Update-ValidateButtonState {
     $pin = $PinInput.Password
     $pinConfirm = $PinConfirm.Password
@@ -880,43 +880,43 @@ $CloseButton.Add_Click({
 $Window.Add_Closing({
     param($sender, $e)
     
-    # Si l’utilisateur a validé, ne rien faire de spécial
+    # Si l'utilisateur a validé, ne rien faire de spécial
     if ($script:UserAction -eq "Validated") {
         return
     }
     
-    # Si l’utilisateur n’a pas cliqué sur un bouton (fermeture par la barre des tâches)
+    # Si l'utilisateur n'a pas cliqué sur un bouton (fermeture par la barre des tâches)
     if ([string]::IsNullOrEmpty($script:UserAction)) {
         Write-Output "Activation reportée via fermeture de la fenêtre. Reports restants : $($MaxPostpones - $CurrentPostponeCount - 1)"
         $script:UserAction = "Postponed"
     }
 })
 
-# Afficher la boîte de dialogue (avec try-catch pour erreur d’affichage)
+# Afficher la boîte de dialogue (avec try-catch pour erreur d'affichage)
 try {
     $dialogResult = $Window.ShowDialog()
     Write-Output "DialogResult : $dialogResult"
 } catch {
-    Write-Error "Erreur d’affichage WPF : $($_.Exception.Message). Essayez sans AllowsTransparency si le problème persiste."
+    Write-Error "Erreur d'affichage WPF : $($_.Exception.Message). Essayez sans AllowsTransparency si le problème persiste."
     exit 1
 }
 
-# Incrémenter le compteur si l’utilisateur a reporté
+# Incrémenter le compteur si l'utilisateur a reporté
 if ($script:UserAction -eq "Postponed") {
     $CurrentPostponeCount++
     $CurrentPostponeCount | Set-Content $CounterPath -Force
     Write-Output "Compteur incrémenté. Nouvelle valeur : $CurrentPostponeCount"
 }
 
-# Vérification préalable de l’état BitLocker
+# Vérification préalable de l'état BitLocker
 $blv = Get-BitLockerVolume -MountPoint "C:"
 switch ($blv.VolumeStatus) {
     'EncryptionInProgress' {
-        [System.Windows.MessageBox]::Show("Un chiffrement BitLocker est déjà en cours sur ce poste. Patientez jusqu’à la fin.", "Information", "OK", "Information")
+        [System.Windows.MessageBox]::Show("Un chiffrement BitLocker est déjà en cours sur ce poste. Patientez jusqu'à la fin.", "Information", "OK", "Information")
         return
     }
     'DecryptionInProgress' {
-        [System.Windows.MessageBox]::Show("Un déchiffrement BitLocker est actuellement en cours. Attendez qu’il soit terminé avant de relancer.", "Information", "OK", "Information")
+        [System.Windows.MessageBox]::Show("Un déchiffrement BitLocker est actuellement en cours. Attendez qu'il soit terminé avant de relancer.", "Information", "OK", "Information")
         return
     }
     'FullyEncrypted' {
@@ -1045,7 +1045,7 @@ if ($dialogResult -eq $true -and $script:Pin) {
     }
 
 } else {
-    Write-Output "Activation reportée ou annulée par l’utilisateur."
+    Write-Output "Activation reportée ou annulée par l'utilisateur."
 }
 
 # Nettoyage sécurisé
