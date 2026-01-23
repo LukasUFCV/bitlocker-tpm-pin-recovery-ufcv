@@ -31,7 +31,7 @@ Set-WinUILanguageOverride fr-FR
 [Threading.Thread]::CurrentThread.CurrentCulture = 'fr-FR'
 [Threading.Thread]::CurrentThread.CurrentUICulture = 'fr-FR'
 
-Write-Host "🌍 Contexte défini : UTF-8 avec BOM + Culture française (fr-FR)" -ForegroundColor Cyan
+Write-Host "[INFO] Encodage UTF-8 (BOM) et culture fr-FR appliqués." -ForegroundColor Cyan
 
 # Vérification des prérequis (avertissement si non-System)
 if (-not ([System.Security.Principal.WindowsIdentity]::GetCurrent().User -eq 'SYSTEM')) {
