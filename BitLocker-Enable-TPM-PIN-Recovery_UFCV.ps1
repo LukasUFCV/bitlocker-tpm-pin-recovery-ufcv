@@ -927,71 +927,121 @@ switch ($blv.VolumeStatus) {
     }
 }
 
-# Traitement post-saisie
+# Traitement post-saisie (workflow RecoveryPassword + Backup AD + Enable-BitLocker TPM+PIN)
 if ($dialogResult -eq $true -and $script:Pin) {
-    $Drive = "C:"
-    $blv = Get-BitLockerVolume -MountPoint $Drive
-    if ($blv.ProtectionStatus -eq 'On' -or $blv.VolumeStatus -eq 'EncryptionInProgress') {
-        Write-Host "ℹ️  BitLocker est déjà activé ou en cours de chiffrement." -ForegroundColor Yellow
-        [System.Windows.MessageBox]::Show("BitLocker est déjà activé ou en cours de chiffrement.", "Information", "OK", "Information")
+
+    $MountPoint       = "C:"
+    $EncryptionMethod = "XtsAes256"
+    $ComputerName     = $env:COMPUTERNAME
+
+    # Helpers (localisés ici pour être autonome)
+    function Get-Protector([string]$mp, [string]$type) {
+        (Get-BitLockerVolume -MountPoint $mp).KeyProtector | Where-Object { $_.KeyProtectorType -eq $type }
+    }
+    function Get-FirstProtectorId([string]$mp, [string]$type) {
+        Get-Protector -mp $mp -type $type | Select-Object -ExpandProperty KeyProtectorId -First 1
+    }
+
+    # Vérification état BitLocker
+    $blv = Get-BitLockerVolume -MountPoint $MountPoint
+    if ($blv.VolumeStatus -eq "EncryptionInProgress" -or $blv.VolumeStatus -eq "FullyEncrypted" -or $blv.ProtectionStatus -eq "On") {
+        Write-Host "BitLocker est déjà activé ou en cours sur $MountPoint. Aucune action requise." -ForegroundColor Yellow
+        [System.Windows.MessageBox]::Show(
+            "BitLocker est déjà activé ou en cours de chiffrement sur ce poste.",
+            "Information", "OK", "Information"
+        )
         return
     }
 
     try {
-        $ComputerName = $env:COMPUTERNAME
-        Write-Host "=== Activation BitLocker sur $Drive ($ComputerName) ===" -ForegroundColor Cyan
+        Write-Host "=== Activation BitLocker sur $MountPoint ($ComputerName) ===" -ForegroundColor Cyan
 
-        # Conversion du PIN en SecureString
+        # 1) RecoveryPassword (création ou réutilisation)
+        Write-Host "Etape 1/3 : vérification du RecoveryPassword..." -ForegroundColor Cyan
+        $recId = Get-FirstProtectorId -mp $MountPoint -type "RecoveryPassword"
+
+        if (-not $recId) {
+            Add-BitLockerKeyProtector -MountPoint $MountPoint -RecoveryPasswordProtector -ErrorAction Stop | Out-Null
+            $recId = Get-FirstProtectorId -mp $MountPoint -type "RecoveryPassword"
+
+            if (-not $recId) {
+                throw "Impossible de récupérer l'ID du RecoveryPassword après création."
+            }
+
+            Write-Host "[OK] RecoveryPassword ajouté." -ForegroundColor Green
+        } else {
+            Write-Host "[OK] RecoveryPassword déjà présent (réutilisation)." -ForegroundColor Green
+        }
+
+        # 2) Backup AD (obligatoire si GPO l'exige)
+        Write-Host "Etape 2/3 : sauvegarde du RecoveryPassword dans AD DS..." -ForegroundColor Cyan
+        Backup-BitLockerKeyProtector -MountPoint $MountPoint -KeyProtectorId $recId -ErrorAction Stop | Out-Null
+        Write-Host "[OK] Sauvegarde AD effectuée (Backup-BitLockerKeyProtector)." -ForegroundColor Green
+
+        # 3) Enable-BitLocker (Used Space Only + XtsAes256 + TPM+PIN)
+        Write-Host "Etape 3/3 : activation BitLocker (Used Space Only, TPM+PIN)..." -ForegroundColor Cyan
+
+        # Conversion du PIN (GUI) en SecureString
         $UserPin = ConvertTo-SecureString $script:Pin -AsPlainText -Force
 
-        # 1️⃣ Ajout du protecteur TPM + PIN (avec gestion d'erreurs 0x80310060 / 0x8031006A)
+        # Si un TPM+PIN existait déjà, on le supprime pour éviter doublons
+        $existingTpmPins = @(Get-Protector -mp $MountPoint -type "TpmPin")
+        if ($existingTpmPins.Count -gt 0) {
+            Write-Host "[WARN] Un protecteur TPM+PIN existe déjà : suppression avant recréation." -ForegroundColor DarkYellow
+            foreach ($kp in $existingTpmPins) {
+                Remove-BitLockerKeyProtector -MountPoint $MountPoint -KeyProtectorId $kp.KeyProtectorId -ErrorAction Stop
+            }
+            Write-Host "[OK] Protecteur(s) TPM+PIN supprimé(s)." -ForegroundColor Green
+        }
+
+        # Lancement de l'activation (pas de barre de progression)
         try {
-            Add-BitLockerKeyProtector -MountPoint $Drive -TpmAndPinProtector -Pin $UserPin -ErrorAction Stop | Out-Null
-            Write-Host "✅ Protecteur TPM + PIN ajouté avec succès." -ForegroundColor Green
+            Enable-BitLocker -MountPoint $MountPoint `
+                -EncryptionMethod $EncryptionMethod `
+                -UsedSpaceOnly `
+                -TpmAndPinProtector `
+                -Pin $UserPin `
+                -ErrorAction Stop | Out-Null
+
+            Write-Host "[OK] Enable-BitLocker lancé." -ForegroundColor Green
         }
         catch {
             $msg = $_.Exception.Message
-            $hr = $_.Exception.HResult
+            $hr  = $_.Exception.HResult
 
+            # GPO PIN pas encore appliquée
             if ($hr -eq -2144272384 -or $msg -match "0x80310060") {
-                Write-Warning "🚫 La stratégie GPO n'autorise pas encore le code PIN (0x80310060)."
+                Write-Warning "La stratégie ne permet pas encore le PIN au démarrage (0x80310060)."
                 [System.Windows.MessageBox]::Show(
-                    "Le moteur BitLocker n'autorise pas encore le PIN au démarrage.`n`n" +
-                    "Veuillez redémarrer l'ordinateur puis relancer le script.",
+                    "La stratégie BitLocker n'autorise pas encore le PIN au démarrage.`n`n" +
+                    "Redémarrez l'ordinateur puis relancez le script.",
                     "Redémarrage requis", "OK", "Warning"
                 )
                 New-Item -ItemType File -Path "$env:ProgramData\BitLockerActivation\PendingReboot.flag" -Force | Out-Null
-                Write-Host "🔁 Redémarrage requis avant activation complète TPM + PIN." -ForegroundColor Yellow
                 exit 0
             }
-            elseif ($hr -eq -2144272374 -or $msg -match "0x8031006A") {
-                Write-Warning "ℹ️ Un protecteur TPM + PIN existe déjà. Le script continue."
-            }
-            else {
-                Write-Error "⚠️ Erreur inattendue : $msg"
-                exit 1
-            }
+
+            throw "Echec Enable-BitLocker : $msg"
         }
 
-        # 2️⃣ Ajout du protecteur de récupération (48 chiffres)
-        Add-BitLockerKeyProtector -MountPoint $Drive -RecoveryPasswordProtector | Out-Null
-        Write-Host "✅ Protecteur de récupération ajouté avec succès." -ForegroundColor Green
-
-        # 3️⃣ Démarrage du chiffrement BitLocker
-        Write-Host "Démarrage du chiffrement BitLocker sur $ComputerName..." -ForegroundColor Cyan
-        manage-bde -on $Drive -usedspaceonly -skiphardwaretest
-        Write-Host "💾 Le chiffrement a bien démarré. Vous pouvez vérifier la progression avec : manage-bde -status" -ForegroundColor Green
-
-        # 4️⃣ Suppression du compteur (succès)
+        # Succès -> suppression compteur de reports
         if (Test-Path $CounterPath) {
             Remove-Item $CounterPath -Force
         }
 
-        [System.Windows.MessageBox]::Show("BitLocker activé avec succès ! Redémarrez pour appliquer.", "Succès", "OK", "Information")
+        [System.Windows.MessageBox]::Show(
+            "BitLocker a été configuré. Un redémarrage est requis pour finaliser l'initialisation et démarrer le chiffrement.",
+            "BitLocker", "OK", "Information"
+        )
+
+        Write-Host "[OK] Configuration terminée. Redémarrage requis." -ForegroundColor Green
     }
     catch {
-        Write-Error "⚠️ Erreur lors de l’activation de BitLocker : $($_.Exception.Message)"
-        [System.Windows.MessageBox]::Show("Erreur : $($_.Exception.Message)", "Erreur", "OK", "Error")
+        Write-Host "[ERR] $($_.Exception.Message)" -ForegroundColor Red
+        [System.Windows.MessageBox]::Show(
+            "Erreur : $($_.Exception.Message)",
+            "Erreur", "OK", "Error"
+        )
     }
 
 } else {
