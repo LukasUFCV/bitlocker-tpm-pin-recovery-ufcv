@@ -957,7 +957,7 @@ if ($dialogResult -eq $true -and $script:Pin) {
         Write-Host "=== Activation BitLocker sur $MountPoint ($ComputerName) ===" -ForegroundColor Cyan
 
         # 1) RecoveryPassword (création ou réutilisation)
-        Write-Host "Etape 1/3 : vérification du RecoveryPassword..." -ForegroundColor Cyan
+        Write-Host "Étape 1/3 : vérification du RecoveryPassword..." -ForegroundColor Cyan
         $recId = Get-FirstProtectorId -mp $MountPoint -type "RecoveryPassword"
 
         if (-not $recId) {
@@ -974,12 +974,12 @@ if ($dialogResult -eq $true -and $script:Pin) {
         }
 
         # 2) Backup AD (obligatoire si GPO l'exige)
-        Write-Host "Etape 2/3 : sauvegarde du RecoveryPassword dans AD DS..." -ForegroundColor Cyan
+        Write-Host "Étape 2/3 : sauvegarde du RecoveryPassword dans AD DS..." -ForegroundColor Cyan
         Backup-BitLockerKeyProtector -MountPoint $MountPoint -KeyProtectorId $recId -ErrorAction Stop | Out-Null
         Write-Host "[OK] Sauvegarde AD effectuée (Backup-BitLockerKeyProtector)." -ForegroundColor Green
 
         # 3) Enable-BitLocker (Used Space Only + XtsAes256 + TPM+PIN)
-        Write-Host "Etape 3/3 : activation BitLocker (Used Space Only, TPM+PIN)..." -ForegroundColor Cyan
+        Write-Host "Étape 3/3 : activation BitLocker (Used Space Only, TPM+PIN)..." -ForegroundColor Cyan
 
         # Conversion du PIN (GUI) en SecureString
         $UserPin = ConvertTo-SecureString $script:Pin -AsPlainText -Force
@@ -1021,7 +1021,7 @@ if ($dialogResult -eq $true -and $script:Pin) {
                 exit 0
             }
 
-            throw "Echec Enable-BitLocker : $msg"
+            throw "Échec Enable-BitLocker : $msg"
         }
 
         # Succès -> suppression compteur de reports
