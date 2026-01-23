@@ -492,7 +492,7 @@ $Xaml = @"
                 <!-- Texte explicatif - Paragraphe 2 avec meilleur contraste -->
                 <TextBlock Grid.Row="3" 
                            HorizontalAlignment="Left" 
-                           Text="Il vous suffit maintenant de choisir un code PIN à 6 chiffres, de préférence le même que celui utilisé pour ouvrir votre session, afin de sécuriser l'accès à votre poste au démarrage." 
+                           Text="Il vous suffit maintenant de choisir un code PIN de 6 à 20 chiffres, de préférence le même que celui utilisé pour ouvrir votre session, afin de sécuriser l'accès à votre poste au démarrage." 
                            FontSize="12" 
                            Margin="0,0,0,32" 
                            Foreground="#D0D0D0" 
@@ -647,6 +647,10 @@ if (-not $PinInput -or -not $PinConfirm -or -not $PinInputBorder -or -not $PinCo
     exit 1
 }
 
+# Limiter la saisie à 20 chiffres côté UI
+$PinInput.MaxLength   = 20
+$PinConfirm.MaxLength = 20
+
 # Mettre à jour le compteur visuel
 $RemainingPostpones = $MaxPostpones - $CurrentPostponeCount
 $PostponeCounter.Text = "Reports restants : $RemainingPostpones/$MaxPostpones"
@@ -710,8 +714,8 @@ $PinConfirm.Add_PasswordChanged({
 function Test-Pin {
     param($Pin)
     
-    # Vérifier la longueur et que ce sont uniquement des chiffres
-    if ($Pin.Length -lt 6 -or $Pin.Length -gt 20 -or $Pin -notmatch "^\d+$") {
+    # Vérifier la longueur (6 à 20) et que ce sont uniquement des chiffres
+    if ([string]::IsNullOrEmpty($Pin) -or $Pin.Length -lt 6 -or $Pin.Length -gt 20 -or $Pin -notmatch "^\d+$") {
         return $false, "PIN invalide : 6 à 20 chiffres requis."
     }
     
