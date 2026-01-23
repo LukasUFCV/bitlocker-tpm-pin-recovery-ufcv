@@ -49,7 +49,6 @@ Add-Type -AssemblyName WindowsBase
 # Affichage forcé (Out-Host) même si tu stockes le résultat dans une variable
 # ==========================================================
 
-$FveRegPath  = "HKLM:\SOFTWARE\Policies\Microsoft\FVE"
 $FveSubKey   = "SOFTWARE\Policies\Microsoft\FVE"
 
 # Valeurs attendues (selon tes nouvelles GPO)
@@ -89,13 +88,13 @@ function Get-ExpectedRegistryKind($value) {
     return [Microsoft.Win32.RegistryValueKind]::Unknown
 }
 
-function Normalize-ValueForCompare($v) {
+function Convert-ValueForCompare($v) {
     if ($null -eq $v) { return $null }
     if ($v -is [string]) { return $v.Trim() }
     return $v
 }
 
-function Values-AreEqual($current, $expected) {
+function Test-ValueEquality($current, $expected) {
     if ($expected -is [string]) {
         return ([string]$current).Trim().ToLowerInvariant() -eq $expected.Trim().ToLowerInvariant()
     }
@@ -129,7 +128,7 @@ foreach ($name in ($RequiredKeys.Keys | Sort-Object)) {
     $currentKind = $null
     $exists      = $false
 
-    if ($rk -ne $null) {
+    if ($null -ne $rk) {
         try {
             $current = $rk.GetValue($name, $null)
             if ($null -ne $current) {
@@ -141,12 +140,12 @@ foreach ($name in ($RequiredKeys.Keys | Sort-Object)) {
         }
     }
 
-    $currentNorm  = Normalize-ValueForCompare $current
-    $expectedNorm = Normalize-ValueForCompare $expected
+    $currentNorm  = Convert-ValueForCompare $current
+    $expectedNorm = Convert-ValueForCompare $expected
 
     # Type OK ?
     $typeOk = $true
-    if ($exists -and $currentKind -ne $null -and $expectedKind -ne [Microsoft.Win32.RegistryValueKind]::Unknown) {
+    if ($exists -and $null -ne $currentKind -and $expectedKind -ne [Microsoft.Win32.RegistryValueKind]::Unknown) {
         if ($expectedKind -eq [Microsoft.Win32.RegistryValueKind]::String) {
             # accepter ExpandString pour les chemins
             $typeOk = @([Microsoft.Win32.RegistryValueKind]::String, [Microsoft.Win32.RegistryValueKind]::ExpandString) -contains $currentKind
@@ -156,7 +155,7 @@ foreach ($name in ($RequiredKeys.Keys | Sort-Object)) {
     }
 
     # Valeur OK ?
-    $valueOk = $exists -and (Values-AreEqual $currentNorm $expectedNorm)
+    $valueOk = $exists -and (Test-ValueEquality $currentNorm $expectedNorm)
 
     $status =
         if (-not $exists) { "MISSING" }
@@ -203,7 +202,7 @@ Write-Host ""
 Write-Host "Terminé." -ForegroundColor DarkCyan
 
 # (Optionnel) si tu veux garder le résultat pour plus tard :
-$FveAudit = $results
+# $FveAudit = $results
 
 # Gestion du compteur de reports (max 99 fois)
 $CounterPath = "$env:ProgramData\BitLockerActivation\PostponeCount.txt"
@@ -679,7 +678,7 @@ $ValidateButton.Opacity = 0.5
 # Ajouter un gestionnaire pour bloquer les caractères non numériques
 $PinInput.AddHandler([System.Windows.Input.TextCompositionManager]::PreviewTextInputEvent, 
     [System.Windows.Input.TextCompositionEventHandler] {
-        param($sender, $e)
+        param($src, $e)
         if ($e.Text -notmatch "^\d$") {
             $e.Handled = $true
         }
@@ -687,7 +686,7 @@ $PinInput.AddHandler([System.Windows.Input.TextCompositionManager]::PreviewTextI
 
 $PinConfirm.AddHandler([System.Windows.Input.TextCompositionManager]::PreviewTextInputEvent, 
     [System.Windows.Input.TextCompositionEventHandler] {
-        param($sender, $e)
+        param($src, $e)
         if ($e.Text -notmatch "^\d$") {
             $e.Handled = $true
         }
@@ -705,7 +704,7 @@ $PinConfirm.Add_PasswordChanged({
 })
 
 # Fonction de validation du PIN
-function Validate-PIN {
+function Test-Pin {
     param($Pin)
     
     # Vérifier la longueur et que ce sont uniquement des chiffres
@@ -759,11 +758,11 @@ function Update-PinBorderColors {
     }
 
     # Valider le premier PIN
-    $validationResult = Validate-PIN -Pin $pin
+    $validationResult = Test-Pin -Pin $pin
     $isValidPin = $validationResult[0]
 
     # Valider le second PIN
-    $validationResult2 = Validate-PIN -Pin $pinConfirm
+    $validationResult2 = Test-Pin -Pin $pinConfirm
     $isValidPinConfirm = $validationResult2[0]
 
     # Déterminer les couleurs
@@ -813,8 +812,8 @@ function Update-ValidateButtonState {
     }
 
     # Vérifier que les deux PINs sont valides
-    $validationResult1 = Validate-PIN -Pin $pin
-    $validationResult2 = Validate-PIN -Pin $pinConfirm
+    $validationResult1 = Test-Pin -Pin $pin
+    $validationResult2 = Test-Pin -Pin $pinConfirm
     $isValidPin = $validationResult1[0]
     $isValidPinConfirm = $validationResult2[0]
 
@@ -837,7 +836,7 @@ $ValidateButton.Add_Click({
     $pinConfirm = $PinConfirm.Password
     
     # Vérifier que le PIN est valide
-    $validationResult = Validate-PIN -Pin $pin
+    $validationResult = Test-Pin -Pin $pin
     $isValid = $validationResult[0]
     $errorMessage = $validationResult[1]
     
@@ -878,7 +877,7 @@ $CloseButton.Add_Click({
 
 # Gérer la fermeture par la barre des tâches ou Alt+F4
 $Window.Add_Closing({
-    param($sender, $e)
+    param($src, $e)
     
     # Si l'utilisateur a validé, ne rien faire de spécial
     if ($script:UserAction -eq "Validated") {
