@@ -183,6 +183,24 @@ $okCount    = ($results | Where-Object { $_.Status -eq "OK" }).Count
 $diffCount  = ($results | Where-Object { $_.Status -in @("DIFF","TYPE_MISMATCH") }).Count
 $missCount  = ($results | Where-Object { $_.Status -eq "MISSING" }).Count
 
+# Bloquer si la GPO BitLocker attendue n'est pas appliquée (poste hors OU / hors vague)
+if ($diffCount -gt 0 -or $missCount -gt 0) {
+
+    $msg = "Ce poste n'est pas éligible au déploiement BitLocker pour le moment.`n`n" +
+           "La configuration attendue (GPO BitLocker) n'est pas appliquée.`n`n" +
+           "Veuillez contacter la DSI (UFCV)."
+
+    Write-Error $msg
+    [System.Windows.MessageBox]::Show(
+        $msg,
+        "BitLocker - Poste non éligible",
+        "OK",
+        "Error"
+    ) | Out-Null
+
+    exit 1
+}
+
 Write-Host "Résumé :" -ForegroundColor Cyan
 Write-Host "  OK        : $okCount" -ForegroundColor Green
 Write-Host "  DIFF/TYPE : $diffCount" -ForegroundColor Yellow
