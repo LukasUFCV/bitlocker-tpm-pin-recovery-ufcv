@@ -179,9 +179,9 @@ if ($null -ne $rk) { $rk.Close() }
 # -------------------------
 # Affichage (comme ton script Check-FVEPolicy)
 # -------------------------
-$okCount    = ($results | Where-Object { $_.Status -eq "OK" }).Count
-$diffCount  = ($results | Where-Object { $_.Status -in @("DIFF","TYPE_MISMATCH") }).Count
-$missCount  = ($results | Where-Object { $_.Status -eq "MISSING" }).Count
+$okCount    = @($results | Where-Object { $_.Status -eq "OK" }).Count
+$diffCount  = @($results | Where-Object { $_.Status -in @("DIFF","TYPE_MISMATCH") }).Count
+$missCount  = @($results | Where-Object { $_.Status -eq "MISSING" }).Count
 
 # Bloquer si la GPO BitLocker attendue n'est pas appliquée (hors OU / hors vague)
 if ($diffCount -gt 0 -or $missCount -gt 0) {
@@ -201,7 +201,7 @@ Write-Host "  MISSING   : $missCount" -ForegroundColor Red
 Write-Host ""
 
 Write-Host "Détails (hors OK) :" -ForegroundColor Cyan
-$nonOk = $results | Where-Object { $_.Status -ne "OK" }
+$nonOk = @($results | Where-Object { $_.Status -ne "OK" })
 
 if ($nonOk.Count -gt 0) {
     $nonOk | Format-Table -AutoSize Name, Status, ExpectedType, CurrentType, Expected, Current | Out-Host
