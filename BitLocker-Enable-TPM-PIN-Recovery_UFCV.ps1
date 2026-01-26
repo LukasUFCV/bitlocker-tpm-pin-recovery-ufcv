@@ -177,14 +177,18 @@ foreach ($name in ($RequiredKeys.Keys | Sort-Object)) {
 if ($null -ne $rk) { $rk.Close() }
 
 # -------------------------
-# Affichage (comme ton script Check-FVEPolicy)
+# Affichage (comme ton script Check-FVEPolicy) + contrôle d'éligibilité
 # -------------------------
-$okCount    = ($results | Where-Object { $_.Status -eq "OK" }).Count
-$diffCount  = ($results | Where-Object { $_.Status -in @("DIFF","TYPE_MISMATCH") }).Count
-$missCount  = ($results | Where-Object { $_.Status -eq "MISSING" }).Count
 
-# Éligibilité (on affiche tout, puis on bloquera après les tableaux)
-$isEligible = ($diffCount -eq 0 -and $missCount -eq 0)
+# Forcer en tableaux pour éviter le bug .Count quand il n’y a qu’1 résultat
+$okItems   = @($results | Where-Object { $_.Status -eq "OK" })
+$diffItems = @($results | Where-Object { $_.Status -in @("DIFF","TYPE_MISMATCH") })
+$missItems = @($results | Where-Object { $_.Status -eq "MISSING" })
+$nonOk     = @($results | Where-Object { $_.Status -ne "OK" })
+
+$okCount   = $okItems.Count
+$diffCount = $diffItems.Count
+$missCount = $missItems.Count
 
 Write-Host "Résumé :" -ForegroundColor Cyan
 Write-Host "  OK        : $okCount" -ForegroundColor Green
@@ -193,8 +197,6 @@ Write-Host "  MISSING   : $missCount" -ForegroundColor Red
 Write-Host ""
 
 Write-Host "Détails (hors OK) :" -ForegroundColor Cyan
-$nonOk = $results | Where-Object { $_.Status -ne "OK" }
-
 if ($nonOk.Count -gt 0) {
     $nonOk | Format-Table -AutoSize Name, Status, ExpectedType, CurrentType, Expected, Current | Out-Host
 } else {
@@ -207,14 +209,19 @@ $results | Format-Table -AutoSize Name, Status, Expected, Current, ExpectedType,
 Write-Host ""
 Write-Host "Terminé." -ForegroundColor DarkCyan
 
-# Bloquer après affichage complet si la GPO BitLocker attendue n'est pas appliquée (hors OU / hors vague)
-if (-not $isEligible) {
-    $msg = "Ce poste n'est pas éligible au déploiement BitLocker pour le moment.`n`n" +
-           "La configuration attendue (GPO BitLocker) n'est pas appliquée.`n`n" +
-           "Veuillez contacter la DSI (UFCV)."
+# Bloquer si la GPO BitLocker attendue n'est pas appliquée (hors OU / hors vague)
+if ($diffCount -gt 0 -or $missCount -gt 0) {
 
-    Write-Warning $msg
-    [System.Windows.MessageBox]::Show($msg, "BitLocker - Poste non éligible", "OK", "Error") | Out-Null
+    # Message complet pour la popup
+    $msgUi = "Ce poste n'est pas éligible au déploiement BitLocker pour le moment.`n`n" +
+             "La configuration attendue (GPO BitLocker) n'est pas appliquée.`n`n" +
+             "OK : $okCount / DIFF/TYPE : $diffCount / MISSING : $missCount`n`n" +
+             "Veuillez contacter la DSI (UFCV)."
+
+    # Log console propre (1 ligne, pas de Write-Error)
+    Write-Warning "Poste non éligible : configuration attendue (GPO BitLocker) non appliquée."
+
+    [System.Windows.MessageBox]::Show($msgUi, "BitLocker - Poste non éligible", "OK", "Error") | Out-Null
     exit 1
 }
 
