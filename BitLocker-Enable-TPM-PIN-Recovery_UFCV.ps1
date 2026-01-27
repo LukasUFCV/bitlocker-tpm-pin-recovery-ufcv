@@ -945,7 +945,7 @@ function Set-Progress([int]$percent, [string]$status) {
     }
 }
 
-function Finish-Ui([string]$finalStatus, [bool]$isError = $false) {
+function Complete-Ui([string]$finalStatus, [bool]$isError = $false) {
     Invoke-Ui {
         $ProgressStatus.Text = $finalStatus
         $script:IsProvisioning = $false
@@ -1094,7 +1094,7 @@ function Start-BitLockerProvisioningAsync {
     try {
         $script:__BL_Async = $script:__BL_PS.BeginInvoke($script:__BL_Input, $script:__BL_Output)
     } catch {
-        Finish-Ui -finalStatus ("Erreur lancement asynchrone : " + $_.Exception.Message) -isError $true
+        Complete-Ui -finalStatus ("Erreur lancement asynchrone : " + $_.Exception.Message) -isError $true
         return
     }
 
@@ -1140,13 +1140,13 @@ function Start-BitLockerProvisioningAsync {
                 # EndInvoke peut throw si erreur non gérée
                 $null = $script:__BL_PS.EndInvoke($script:__BL_Async)
             } catch {
-                Finish-Ui -finalStatus ("Erreur : " + $_.Exception.Message) -isError $true
+                Complete-Ui -finalStatus ("Erreur : " + $_.Exception.Message) -isError $true
             }
 
             # Erreurs PowerShell stream ?
             if ($script:__BL_PS.Streams.Error.Count -gt 0) {
                 $first = $script:__BL_PS.Streams.Error[0]
-                Finish-Ui -finalStatus ("Erreur : " + $first.Exception.Message) -isError $true
+                Complete-Ui -finalStatus ("Erreur : " + $first.Exception.Message) -isError $true
             } else {
                 # Récupérer result
                 $res = $null
@@ -1156,18 +1156,18 @@ function Start-BitLockerProvisioningAsync {
 
                 if ($res -and $res.status -eq "already") {
                     Set-Progress 100 $res.message
-                    Finish-Ui -finalStatus $res.message -isError $false
+                    Complete-Ui -finalStatus $res.message -isError $false
                 }
                 elseif ($res -and $res.status -eq "policy_pending") {
                     Set-Progress 100 $res.message
-                    Finish-Ui -finalStatus $res.message -isError $false
+                    Complete-Ui -finalStatus $res.message -isError $false
                 }
                 elseif ($res -and $res.status -eq "success") {
                     Set-Progress 100 $res.message
-                    Finish-Ui -finalStatus $res.message -isError $false
+                    Complete-Ui -finalStatus $res.message -isError $false
                 }
                 else {
-                    Finish-Ui -finalStatus "Terminé." -isError $false
+                    Complete-Ui -finalStatus "Terminé." -isError $false
                 }
             }
 
@@ -1211,7 +1211,7 @@ $ValidateButton.Add_Click({
     try {
         Start-BitLockerProvisioningAsync -PlainPin $pin
     } catch {
-        Finish-Ui -finalStatus ("Erreur interne : " + $_.Exception.Message) -isError $true
+        Complete-Ui -finalStatus ("Erreur interne : " + $_.Exception.Message) -isError $true
     }
 })
 
