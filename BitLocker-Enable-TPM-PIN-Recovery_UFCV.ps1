@@ -219,6 +219,52 @@ if ($diffCount -gt 0 -or $missCount -gt 0) {
 }
 
 # ==========================================================
+# Vérification réseau UFCV (domaine + contrôleur de domaine)
+# Attendu : domaine = ufcvfr.lan
+# Exemple DC : SrvDC1.ufcvfr.lan (ou autre DC du domaine)
+# ==========================================================
+
+$ExpectedDomain = "ufcvfr.lan"
+
+try {
+    # 1) Domaine AD "officiel" (le plus fiable)
+    $domainObj = [System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain()
+    $currentDomain = ($domainObj.Name).ToLowerInvariant()
+
+    # 2) Trouver un DC joignable (LAN ou VPN)
+    $dcObj = $domainObj.FindDomainController()
+    $dcName = ($dcObj.Name).ToLowerInvariant()
+
+    # Vérifs strictes
+    if ($currentDomain -ne $ExpectedDomain) {
+        throw "Domaine détecté : $currentDomain (attendu : $ExpectedDomain)."
+    }
+
+    if (-not $dcName.EndsWith("." + $ExpectedDomain)) {
+        throw "Contrôleur de domaine détecté : $dcName (hors domaine $ExpectedDomain)."
+    }
+
+    Write-Host "[OK] Réseau UFCV validé : domaine=$currentDomain ; DC=$dcName" -ForegroundColor Green
+}
+catch {
+    $detail = $_.Exception.Message
+
+    Write-Warning "Réseau UFCV non détecté : $detail"
+
+    [System.Windows.MessageBox]::Show(
+        "Ce poste n'est pas connecté au réseau UFCV (LAN/VPN) ou n'est pas sur le bon domaine.`n`n" +
+        "Domaine attendu : $ExpectedDomain`n" +
+        "Détail : $detail`n`n" +
+        "Veuillez vous connecter au réseau interne ou au VPN UFCV puis relancer.",
+        "BitLocker - Réseau requis",
+        "OK",
+        "Error"
+    ) | Out-Null
+
+    exit 1
+}
+
+# ==========================================================
 # Gestion du compteur de reports (max 99 fois)
 # ==========================================================
 $CounterPath = "$env:ProgramData\BitLockerActivation\PostponeCount.txt"
