@@ -224,7 +224,7 @@ if ($diffCount -gt 0 -or $missCount -gt 0) {
 # Exemple DC : SrvDC1.ufcvfr.lan (ou autre DC du domaine)
 # ==========================================================
 
-$ExpectedDomain = "ufcvfr.lan"
+$ExpectedDomain = "ufcvfr.lan".Trim().ToLowerInvariant()
 
 try {
     # 1) Domaine AD "officiel" (le plus fiable)
