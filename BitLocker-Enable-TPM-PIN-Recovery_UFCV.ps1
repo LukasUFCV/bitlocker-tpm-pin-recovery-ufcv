@@ -1824,7 +1824,7 @@ function Find-VisualChildByType {
     return $null
 }
 
-function Scroll-ProgressStepsToLatest {
+function Move-ProgressStepsToLatest {
     if (-not $ProgressSteps -or $ProgressSteps.Items.Count -eq 0) {
         return
     }
@@ -1953,7 +1953,7 @@ function Add-StepLine([string]$text, [string]$tag = "info") {
         $itemBorder.Child = $panel
 
         [void]$ProgressSteps.Items.Add($itemBorder)
-        Scroll-ProgressStepsToLatest
+        Move-ProgressStepsToLatest
     }
 }
 
