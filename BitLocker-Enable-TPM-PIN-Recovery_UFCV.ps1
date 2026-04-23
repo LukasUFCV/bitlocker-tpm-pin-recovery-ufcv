@@ -1152,6 +1152,7 @@ $PostponeCounter.Text = "Reports restants : $RemainingPostpones/$MaxPostpones"
 $script:UserAction = $null
 $script:Pin = $null
 $script:IsProvisioning = $false
+$script:RestartPromptShown = $false
 
 # Couleur compteur selon urgence
 if ($RemainingPostpones -le 1) {
@@ -1263,6 +1264,202 @@ Update-WindowViewport
 $Window.Add_Loaded({
     Update-WindowViewport
 })
+
+function Show-RestartPrompt {
+    if ($script:RestartPromptShown) {
+        return "later"
+    }
+
+    $script:RestartPromptShown = $true
+
+    $restartXaml = @"
+<Window
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="UFCV - Redémarrage requis"
+    Width="520"
+    SizeToContent="Height"
+    WindowStartupLocation="CenterOwner"
+    ResizeMode="NoResize"
+    WindowStyle="None"
+    AllowsTransparency="True"
+    Background="Transparent"
+    ShowInTaskbar="False"
+    Topmost="True">
+    <Border Background="Transparent" Margin="10">
+        <Border.Effect>
+            <DropShadowEffect Color="#22000000" BlurRadius="18" ShadowDepth="3" Opacity="0.45"/>
+        </Border.Effect>
+
+        <Border Background="#F3F6F9" BorderBrush="#D9E4ED" BorderThickness="1" CornerRadius="18" Padding="18">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0" Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel>
+                        <TextBlock Text="Redémarrage nécessaire"
+                                   FontFamily="Bahnschrift SemiCondensed"
+                                   FontSize="24"
+                                   FontWeight="Bold"
+                                   Foreground="#24364A"/>
+                        <TextBlock Text="Finalisation de la protection BitLocker"
+                                   Margin="0,3,0,0"
+                                   FontSize="11.5"
+                                   Foreground="#5F7285"/>
+                    </StackPanel>
+
+                    <Button Name="RestartCloseButton"
+                            Grid.Column="1"
+                            Width="32"
+                            Height="32"
+                            Margin="12,0,0,0"
+                            Background="White"
+                            BorderBrush="#D9E4ED"
+                            BorderThickness="1"
+                            Foreground="#5F7285"
+                            FontSize="16"
+                            FontWeight="SemiBold"
+                            Cursor="Hand"
+                            Content="×"/>
+                </Grid>
+
+                <Border Grid.Row="1"
+                        Background="#1696D2"
+                        CornerRadius="14"
+                        Padding="16,14">
+                    <TextBlock Text="La configuration du poste est terminée. Un redémarrage est recommandé maintenant pour finaliser la mise en protection."
+                               FontSize="12.5"
+                               Foreground="White"
+                               TextWrapping="Wrap"
+                               LineHeight="18"/>
+                </Border>
+
+                <Border Grid.Row="2"
+                        Margin="0,12,0,0"
+                        Background="#E8F5FB"
+                        BorderBrush="#C6E5F4"
+                        BorderThickness="1"
+                        CornerRadius="12"
+                        Padding="14,10">
+                    <StackPanel>
+                        <TextBlock Text="Vous pourrez aussi redémarrer plus tard si vous devez terminer une tâche en cours."
+                                   FontSize="11.5"
+                                   Foreground="#24364A"
+                                   TextWrapping="Wrap"
+                                   LineHeight="17"/>
+                        <TextBlock Name="RestartErrorText"
+                                   Visibility="Collapsed"
+                                   Margin="0,8,0,0"
+                                   FontSize="11"
+                                   FontWeight="SemiBold"
+                                   Foreground="#C44F4B"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+
+                <StackPanel Grid.Row="3"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Right"
+                            Margin="0,14,0,0">
+                    <Button Name="RestartLaterButton"
+                            Width="140"
+                            Height="42"
+                            Margin="0,0,8,0"
+                            Background="White"
+                            BorderBrush="#D9E4ED"
+                            BorderThickness="1"
+                            Foreground="#24364A"
+                            FontSize="13"
+                            FontWeight="SemiBold"
+                            Cursor="Hand"
+                            Content="Plus tard"/>
+                    <Button Name="RestartNowButton"
+                            Width="178"
+                            Height="42"
+                            Background="#1696D2"
+                            BorderBrush="#1696D2"
+                            BorderThickness="1"
+                            Foreground="White"
+                            FontSize="13"
+                            FontWeight="SemiBold"
+                            Cursor="Hand"
+                            Content="Redémarrer maintenant"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Border>
+</Window>
+"@
+
+    try {
+        $reader = New-Object System.Xml.XmlNodeReader ([xml]$restartXaml)
+        $restartWindow = [Windows.Markup.XamlReader]::Load($reader)
+    } catch {
+        $script:RestartPromptShown = $false
+        Write-Warning "Impossible de charger la fenêtre de redémarrage : $($_.Exception.Message)"
+        return "later"
+    }
+
+    if ($Window -and $Window.IsVisible) {
+        try { $restartWindow.Owner = $Window } catch {}
+    } else {
+        $restartWindow.WindowStartupLocation = "CenterScreen"
+    }
+
+    $restartNowButton   = $restartWindow.FindName("RestartNowButton")
+    $restartLaterButton = $restartWindow.FindName("RestartLaterButton")
+    $restartCloseButton = $restartWindow.FindName("RestartCloseButton")
+    $restartErrorText   = $restartWindow.FindName("RestartErrorText")
+
+    $state = [pscustomobject]@{
+        Choice = "later"
+    }
+
+    $restartLaterAction = {
+        $state.Choice = "later"
+        $restartWindow.Close()
+    }
+
+    $restartLaterButton.Add_Click($restartLaterAction)
+    $restartCloseButton.Add_Click($restartLaterAction)
+
+    $restartNowButton.Add_Click({
+        $restartNowButton.IsEnabled = $false
+        $restartLaterButton.IsEnabled = $false
+        $restartCloseButton.IsEnabled = $false
+
+        try {
+            Restart-Computer -Force -ErrorAction Stop
+            $state.Choice = "restart"
+            $restartWindow.Close()
+        } catch {
+            $restartErrorText.Text = "Le redémarrage automatique n'a pas pu être lancé. Vous pouvez réessayer ou choisir Plus tard."
+            $restartErrorText.Visibility = "Visible"
+            $restartNowButton.IsEnabled = $true
+            $restartLaterButton.IsEnabled = $true
+            $restartCloseButton.IsEnabled = $true
+        }
+    })
+
+    try {
+        [void]$restartWindow.ShowDialog()
+    } catch {
+        Write-Warning "Impossible d'afficher la fenêtre de redémarrage : $($_.Exception.Message)"
+        $state.Choice = "later"
+    }
+
+    return $state.Choice
+}
 
 function Update-PinBorderColors {
     $pin        = $PinInput.Password
@@ -1657,6 +1854,8 @@ function Start-BitLockerProvisioningAsync {
     $script:__BL_Timer.Interval = [TimeSpan]::FromMilliseconds(200)
 
     $script:__BL_Timer.Add_Tick({
+        $showRestartPrompt = $false
+
         # Consommer les nouveaux éléments
         while ($script:__BL_LastIndex -lt $script:__BL_Output.Count) {
             $item = $script:__BL_Output[$script:__BL_LastIndex]
@@ -1707,6 +1906,7 @@ function Start-BitLockerProvisioningAsync {
                 elseif ($res -and $res.status -eq "success") {
                     Set-Progress 100 $res.message "done"
                     Complete-Ui -finalStatus $res.message -isError $false -state "done"
+                    $showRestartPrompt = $true
                 }
                 else {
                     Complete-Ui -finalStatus "Terminé." -isError $false -state "done"
@@ -1719,6 +1919,17 @@ function Start-BitLockerProvisioningAsync {
             $script:__BL_PS = $null
             $script:__BL_RS = $null
             $script:__BL_Async = $null
+
+            if ($showRestartPrompt) {
+                $restartChoice = Show-RestartPrompt
+                if ($restartChoice -eq "restart") {
+                    $script:UserAction = "Validated"
+                    if ($Window.IsVisible) {
+                        $Window.DialogResult = $true
+                        $Window.Close()
+                    }
+                }
+            }
         }
     })
 
