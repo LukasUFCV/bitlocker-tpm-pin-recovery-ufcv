@@ -931,8 +931,9 @@ $Xaml = @"
                                         <ListBox Name="ProgressSteps"
                                                  Grid.Row="1"
                                                  Margin="0,8,0,0"
-                                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"/>
+                                                 ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                                 ScrollViewer.CanContentScroll="False"/>
                                     </Grid>
                                 </Border>
 
@@ -1581,6 +1582,32 @@ function Show-ProgressUi {
     }
 }
 
+function Find-VisualChildByType {
+    param(
+        [Parameter(Mandatory)] [System.Windows.DependencyObject]$Parent,
+        [Parameter(Mandatory)] [Type]$TargetType
+    )
+
+    $childCount = [System.Windows.Media.VisualTreeHelper]::GetChildrenCount($Parent)
+    for ($i = 0; $i -lt $childCount; $i++) {
+        $child = [System.Windows.Media.VisualTreeHelper]::GetChild($Parent, $i)
+        if ($null -eq $child) {
+            continue
+        }
+
+        if ($TargetType.IsAssignableFrom($child.GetType())) {
+            return $child
+        }
+
+        $match = Find-VisualChildByType -Parent $child -TargetType $TargetType
+        if ($null -ne $match) {
+            return $match
+        }
+    }
+
+    return $null
+}
+
 function Scroll-ProgressStepsToLatest {
     if (-not $ProgressSteps -or $ProgressSteps.Items.Count -eq 0) {
         return
@@ -1595,15 +1622,26 @@ function Scroll-ProgressStepsToLatest {
         try {
             $ProgressSteps.UpdateLayout()
             $ProgressSteps.ScrollIntoView($latestItem)
+
+            $container = $ProgressSteps.ItemContainerGenerator.ContainerFromItem($latestItem)
+            if ($container) {
+                $container.BringIntoView()
+            }
+
+            $scrollViewer = Find-VisualChildByType -Parent $ProgressSteps -TargetType ([System.Windows.Controls.ScrollViewer])
+            if ($scrollViewer) {
+                $scrollViewer.UpdateLayout()
+                $scrollViewer.ScrollToVerticalOffset($scrollViewer.ScrollableHeight)
+            }
         } catch {
         }
     }
 
     if ($Window.Dispatcher.CheckAccess()) {
-        $null = $Window.Dispatcher.BeginInvoke([System.Windows.Threading.DispatcherPriority]::Background, $scrollAction)
+        $null = $Window.Dispatcher.BeginInvoke([System.Windows.Threading.DispatcherPriority]::Render, $scrollAction)
     } else {
         Invoke-Ui {
-            $null = $Window.Dispatcher.BeginInvoke([System.Windows.Threading.DispatcherPriority]::Background, $scrollAction)
+            $null = $Window.Dispatcher.BeginInvoke([System.Windows.Threading.DispatcherPriority]::Render, $scrollAction)
         }
     }
 }
