@@ -18,6 +18,8 @@ Le script :
 
 Le dépôt est manifestement destiné à un contexte interne UFCV. Cette spécialisation est visible dans le code par le domaine codé en dur, les valeurs de stratégie attendues, les chemins de stockage locaux et le texte des messages utilisateur.
 
+---
+
 ## Ce que fait réellement le script
 
 Le workflow réel, tel qu’implémenté, est le suivant :
@@ -45,6 +47,8 @@ Le workflow réel, tel qu’implémenté, est le suivant :
 
 Le script ne propose pas de mode silencieux, pas de paramètre CLI et pas de configuration externe. Toute la logique est codée dans le `.ps1`.
 
+---
+
 ## Structure du dépôt
 
 À la racine du dépôt, on trouve les fichiers suivants :
@@ -58,6 +62,8 @@ Le script ne propose pas de mode silencieux, pas de paramètre CLI et pas de con
 | [`.repoignore`](./.repoignore) | Liste d’exclusion locale utilisée par l’outillage du dépôt ; elle ignore notamment `.git`, les répertoires de build, les caches, les fichiers temporaires et divers artefacts courants. |
 
 Il n’y a pas de dossier de modules, pas de XAML séparé, pas de test automatisé et pas de manifeste d’installation.
+
+---
 
 ## Flux d’exécution
 
@@ -165,6 +171,8 @@ Le traitement de provisioning est exécuté dans un runspace séparé afin de ne
 - si l’utilisateur a reporté, le compteur est incrémenté ;
 - si l’erreur correspond à un PIN non encore autorisé par la stratégie, un fichier `PendingReboot.flag` est créé pour marquer l’état.
 
+---
+
 ## Prérequis
 
 Le script ne vérifie pas tous les prérequis possibles, mais son code suppose au minimum :
@@ -179,6 +187,8 @@ Le script ne vérifie pas tous les prérequis possibles, mais son code suppose a
 - un environnement compatible avec `TPM + PIN`, puisque `Enable-BitLocker` est appelé avec `-TpmAndPinProtector`.
 
 Le code avertit si l’exécution n’a pas lieu en `LocalSystem`, mais il ne bloque pas pour autant.
+
+---
 
 ## Hypothèses d’environnement codées en dur
 
@@ -198,6 +208,8 @@ Les valeurs suivantes sont fixes dans le script et doivent être adaptées avant
 | DLL Network Unlock | `C:\Windows\System32\nkpprov.dll` | Valeur attendue dans la stratégie `NetworkUnlockProvider`. |
 
 Le script ne prend aucun de ces paramètres en ligne de commande.
+
+---
 
 ## Validation des stratégies / du registre
 
@@ -243,6 +255,8 @@ La validation du registre est purement comparative. Le script ne corrige pas les
 | `UseTPMKey` | `0` | `DWord` | Stratégie comparée telle quelle. |
 | `UseTPMKeyPIN` | `0` | `DWord` | Stratégie comparée telle quelle. |
 
+---
+
 ## Comportement de l’interface graphique
 
 ### Vue de saisie du PIN
@@ -283,6 +297,8 @@ Lors du provisioning :
 
 Le bouton `Fermer` est aussi activé après une erreur, ce qui permet de quitter l’écran de progression une fois l’état final affiché.
 
+---
+
 ## Mécanisme de report
 
 Le report n’est pas basé sur une durée, mais sur un compteur persistant.
@@ -317,6 +333,8 @@ Le compteur n’est pas incrémenté si :
 - la fermeture de la fenêtre est bloquée tant que l’utilisateur n’a pas lancé la configuration.
 
 Le script considère alors l’activation BitLocker comme obligatoire.
+
+---
 
 ## Logique de provisioning BitLocker
 
@@ -378,6 +396,8 @@ Si `Enable-BitLocker` échoue avec `0x80310060` ou avec le code HRESULT associé
 
 Le drapeau est écrit par le script, mais il n’est pas relu ailleurs dans ce dépôt.
 
+---
+
 ## Implémentation asynchrone / progression
 
 L’UI ne bloque pas pendant le provisioning grâce à un runspace dédié.
@@ -404,6 +424,8 @@ L’état final est affiché via `Complete-Ui`, qui :
 - rend le bouton `Fermer` visible ;
 - réautorise la fermeture ;
 - marque le provisioning comme terminé.
+
+---
 
 ## Gestion des erreurs et conditions bloquantes
 
@@ -432,6 +454,8 @@ Quelques points ne sont pas protégés par un traitement spécifique et peuvent 
 - le chargement des assemblies WPF ;
 - les cmdlets BitLocker elles-mêmes si elles ne sont pas disponibles.
 
+---
+
 ## Notes de sécurité
 
 Le code montre plusieurs comportements sensibles :
@@ -445,6 +469,8 @@ Le code montre plusieurs comportements sensibles :
 - le script appelle `GC.Collect()` et `GC.WaitForPendingFinalizers()` à la fin, mais il ne procède pas à un effacement explicite du contenu des champs UI.
 
 Le dépôt ne fournit pas de mécanisme de journalisation centralisée. Les traces visibles sont essentiellement des sorties console et des messages UI.
+
+---
 
 ## Limites
 
@@ -468,6 +494,8 @@ Ses principales limites sont les suivantes :
 
 En pratique, le script ressemble à un artefact de déploiement interne UFCV plutôt qu’à une bibliothèque réutilisable telle quelle.
 
+---
+
 ## Utilisation
 
 Le dépôt ne contient qu’un script d’exécution direct.
@@ -486,6 +514,8 @@ Contexte d’exécution recommandé par le code :
 - machine déjà jointe au domaine UFCV et conforme aux stratégies attendues.
 
 Le script ne propose aucun paramètre. Toutes les valeurs de fonctionnement sont internes au fichier `.ps1`.
+
+---
 
 ## Dépannage
 
@@ -556,11 +586,15 @@ Vérifier que :
 - l’interface est passée en vue de progression ;
 - aucun message d’erreur n’est remonté dans le runspace.
 
+---
+
 ## Public visé / périmètre
 
 Ce dépôt vise des administrateurs postes et des équipes de déploiement travaillant dans l’environnement UFCV.
 
 Il ne s’agit pas d’un kit générique de déploiement BitLocker. Le code contient des hypothèses organisationnelles explicites et des valeurs codées en dur qui le rendent directement dépendant du contexte UFCV.
+
+---
 
 ## Licence / note d’usage interne
 
