@@ -661,20 +661,27 @@ $Xaml = @"
                     </Border>
                 </Grid>
 
-                <Grid Grid.Row="1" Margin="28,24,28,28">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="2.1*"/>
-                        <ColumnDefinition Width="1*"/>
-                    </Grid.ColumnDefinitions>
+                <ScrollViewer Grid.Row="1"
+                              Name="MainScrollViewer"
+                              Margin="28,24,28,28"
+                              VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled"
+                              CanContentScroll="False"
+                              PanningMode="VerticalOnly">
+                    <Grid Margin="0,0,8,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2.1*"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0"
-                            Background="{StaticResource SurfaceBrush}"
-                            BorderBrush="{StaticResource BorderBrush}"
-                            BorderThickness="1"
-                            CornerRadius="18"
-                            Padding="28,26,28,26">
-                        <Grid>
-                            <Grid Name="PinView">
+                        <Border Grid.Column="0"
+                                Background="{StaticResource SurfaceBrush}"
+                                BorderBrush="{StaticResource BorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="18"
+                                Padding="28,26,28,26">
+                            <Grid>
+                                <Grid Name="PinView">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
@@ -831,9 +838,9 @@ $Xaml = @"
                                         </StackPanel>
                                     </Grid>
                                 </Border>
-                            </Grid>
+                                </Grid>
 
-                            <Grid Name="ProgressView" Visibility="Collapsed">
+                                <Grid Name="ProgressView" Visibility="Collapsed">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
@@ -957,99 +964,100 @@ $Xaml = @"
                                             Visibility="Collapsed"
                                             Style="{StaticResource PrimaryButton}"/>
                                 </StackPanel>
+                                </Grid>
                             </Grid>
-                        </Grid>
-                    </Border>
-
-                    <StackPanel Grid.Column="1" Margin="22,0,0,0">
-                        <Border Background="{StaticResource SurfaceBrush}"
-                                BorderBrush="{StaticResource BorderBrush}"
-                                BorderThickness="1"
-                                CornerRadius="18"
-                                Padding="22,20">
-                            <StackPanel>
-                                <TextBlock Text="Accompagnement"
-                                           FontFamily="Bahnschrift SemiCondensed"
-                                           FontSize="25"
-                                           FontWeight="Bold"
-                                           Foreground="{StaticResource TextPrimaryBrush}"/>
-                                <TextBlock Text="L'outil est conçu pour guider l'utilisateur sans exposer d'informations techniques inutiles."
-                                           Margin="0,10,0,0"
-                                           FontSize="12"
-                                           Foreground="{StaticResource TextSecondaryBrush}"
-                                           TextWrapping="Wrap"
-                                           LineHeight="19"/>
-
-                                <Border Margin="0,18,0,0"
-                                        Background="{StaticResource UfcvBlueSoftBrush}"
-                                        BorderBrush="#C6E5F4"
-                                        BorderThickness="1"
-                                        CornerRadius="14"
-                                        Padding="16,14">
-                                    <StackPanel>
-                                        <TextBlock Text="Pendant l'opération"
-                                                   FontSize="13"
-                                                   FontWeight="SemiBold"
-                                                   Foreground="{StaticResource UfcvBlueDarkBrush}"/>
-                                        <TextBlock Text="Laissez la fenêtre ouverte lorsque la configuration est lancée."
-                                                   Margin="0,10,0,0"
-                                                   FontSize="12"
-                                                   Foreground="{StaticResource TextPrimaryBrush}"
-                                                   TextWrapping="Wrap"
-                                                   LineHeight="18"/>
-                                        <TextBlock Text="Un redémarrage peut être requis pour finaliser l'activation."
-                                                   Margin="0,8,0,0"
-                                                   FontSize="12"
-                                                   Foreground="{StaticResource TextPrimaryBrush}"
-                                                   TextWrapping="Wrap"
-                                                   LineHeight="18"/>
-                                    </StackPanel>
-                                </Border>
-                            </StackPanel>
                         </Border>
 
-                        <Border Margin="0,18,0,0"
-                                Background="{StaticResource SurfaceBrush}"
-                                BorderBrush="{StaticResource BorderBrush}"
-                                BorderThickness="1"
-                                CornerRadius="18"
-                                Padding="22,20">
-                            <StackPanel>
-                                <TextBlock Text="Disponibilité"
-                                           FontFamily="Bahnschrift SemiCondensed"
-                                           FontSize="25"
-                                           FontWeight="Bold"
-                                           Foreground="{StaticResource TextPrimaryBrush}"/>
+                        <StackPanel Grid.Column="1" Margin="22,0,0,0">
+                            <Border Background="{StaticResource SurfaceBrush}"
+                                    BorderBrush="{StaticResource BorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="18"
+                                    Padding="22,20">
+                                <StackPanel>
+                                    <TextBlock Text="Accompagnement"
+                                               FontFamily="Bahnschrift SemiCondensed"
+                                               FontSize="25"
+                                               FontWeight="Bold"
+                                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    <TextBlock Text="L'outil est conçu pour guider l'utilisateur sans exposer d'informations techniques inutiles."
+                                               Margin="0,10,0,0"
+                                               FontSize="12"
+                                               Foreground="{StaticResource TextSecondaryBrush}"
+                                               TextWrapping="Wrap"
+                                               LineHeight="19"/>
 
-                                <TextBlock Name="PostponeCounter"
-                                           Margin="0,14,0,0"
-                                           Text="Reports restants : 99/99"
-                                           FontSize="22"
-                                           FontWeight="SemiBold"
-                                           Foreground="{StaticResource UfcvBlueDarkBrush}"
-                                           TextWrapping="Wrap"/>
+                                    <Border Margin="0,18,0,0"
+                                            Background="{StaticResource UfcvBlueSoftBrush}"
+                                            BorderBrush="#C6E5F4"
+                                            BorderThickness="1"
+                                            CornerRadius="14"
+                                            Padding="16,14">
+                                        <StackPanel>
+                                            <TextBlock Text="Pendant l'opération"
+                                                       FontSize="13"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{StaticResource UfcvBlueDarkBrush}"/>
+                                            <TextBlock Text="Laissez la fenêtre ouverte lorsque la configuration est lancée."
+                                                       Margin="0,10,0,0"
+                                                       FontSize="12"
+                                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                                       TextWrapping="Wrap"
+                                                       LineHeight="18"/>
+                                            <TextBlock Text="Un redémarrage peut être requis pour finaliser l'activation."
+                                                       Margin="0,8,0,0"
+                                                       FontSize="12"
+                                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                                       TextWrapping="Wrap"
+                                                       LineHeight="18"/>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </Border>
 
-                                <TextBlock Text="Si vous n'êtes pas en mesure de poursuivre immédiatement, vous pouvez reporter l'opération dans la limite autorisée."
-                                           Margin="0,10,0,0"
-                                           FontSize="12"
-                                           Foreground="{StaticResource TextSecondaryBrush}"
-                                           TextWrapping="Wrap"
-                                           LineHeight="19"/>
+                            <Border Margin="0,18,0,0"
+                                    Background="{StaticResource SurfaceBrush}"
+                                    BorderBrush="{StaticResource BorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="18"
+                                    Padding="22,20">
+                                <StackPanel>
+                                    <TextBlock Text="Disponibilité"
+                                               FontFamily="Bahnschrift SemiCondensed"
+                                               FontSize="25"
+                                               FontWeight="Bold"
+                                               Foreground="{StaticResource TextPrimaryBrush}"/>
 
-                                <Border Margin="0,18,0,0"
-                                        Height="1"
-                                        Background="{StaticResource BorderBrush}"/>
+                                    <TextBlock Name="PostponeCounter"
+                                               Margin="0,14,0,0"
+                                               Text="Reports restants : 99/99"
+                                               FontSize="22"
+                                               FontWeight="SemiBold"
+                                               Foreground="{StaticResource UfcvBlueDarkBrush}"
+                                               TextWrapping="Wrap"/>
 
-                                <TextBlock Text="La fermeture est volontairement bloquée dès que la configuration BitLocker démarre."
-                                           Margin="0,18,0,0"
-                                           FontSize="12"
-                                           Foreground="{StaticResource TextMutedBrush}"
-                                           TextWrapping="Wrap"
-                                           LineHeight="18"/>
-                            </StackPanel>
-                        </Border>
-                    </StackPanel>
-                </Grid>
+                                    <TextBlock Text="Si vous n'êtes pas en mesure de poursuivre immédiatement, vous pouvez reporter l'opération dans la limite autorisée."
+                                               Margin="0,10,0,0"
+                                               FontSize="12"
+                                               Foreground="{StaticResource TextSecondaryBrush}"
+                                               TextWrapping="Wrap"
+                                               LineHeight="19"/>
+
+                                    <Border Margin="0,18,0,0"
+                                            Height="1"
+                                            Background="{StaticResource BorderBrush}"/>
+
+                                    <TextBlock Text="La fermeture est volontairement bloquée dès que la configuration BitLocker démarre."
+                                               Margin="0,18,0,0"
+                                               FontSize="12"
+                                               Foreground="{StaticResource TextMutedBrush}"
+                                               TextWrapping="Wrap"
+                                               LineHeight="18"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
+                </ScrollViewer>
             </Grid>
         </Border>
     </Border>
@@ -1089,6 +1097,7 @@ $PostponeCounter  = $Window.FindName("PostponeCounter")
 $CloseButton      = $Window.FindName("CloseButton")
 $LogoImage        = $Window.FindName("LogoImage")
 $LogoFallback     = $Window.FindName("LogoFallback")
+$MainScrollViewer = $Window.FindName("MainScrollViewer")
 
 # Progress UI controls
 $PinView         = $Window.FindName("PinView")
@@ -1099,7 +1108,7 @@ $ProgressSteps   = $Window.FindName("ProgressSteps")
 $ProgressStatus  = $Window.FindName("ProgressStatus")
 $FinishButton    = $Window.FindName("FinishButton")
 
-if (-not $PinInput -or -not $PinConfirm -or -not $PinInputBorder -or -not $PinConfirmBorder -or -not $PinStatusText -or -not $ValidateButton -or -not $PostponeButton -or -not $PostponeCounter -or -not $CloseButton -or -not $LogoImage -or -not $LogoFallback `
+if (-not $PinInput -or -not $PinConfirm -or -not $PinInputBorder -or -not $PinConfirmBorder -or -not $PinStatusText -or -not $ValidateButton -or -not $PostponeButton -or -not $PostponeCounter -or -not $CloseButton -or -not $LogoImage -or -not $LogoFallback -or -not $MainScrollViewer `
     -or -not $PinView -or -not $ProgressView -or -not $ProgressBar -or -not $ProgressPercent -or -not $ProgressSteps -or -not $ProgressStatus -or -not $FinishButton) {
     Write-Error "Échec de récupération des contrôles XAML. Le XAML peut être corrompu."
     exit 1
@@ -1185,6 +1194,12 @@ $ValidateButton.IsEnabled = $false
 $ValidateButton.Opacity = 0.5
 $PinStatusText.Text = "Utilisez un code PIN personnel de 6 à 20 chiffres. Les suites simples comme 123456 ou 654321 ne sont pas autorisées."
 $PinStatusText.Foreground = $UiBrushes.TextSecondary
+Update-WindowViewport
+
+$Window.Add_Loaded({
+    Update-WindowViewport
+    $MainScrollViewer.ScrollToTop()
+})
 
 # Bloquer caractères non numériques
 $PinInput.AddHandler([System.Windows.Input.TextCompositionManager]::PreviewTextInputEvent,
@@ -1240,6 +1255,28 @@ function Set-PinStatus {
 
     $PinStatusText.Text = $Text
     $PinStatusText.Foreground = $Foreground
+}
+
+function Update-WindowViewport {
+    $workArea = [System.Windows.SystemParameters]::WorkArea
+    $reservedWidth = 36
+    $reservedHeight = 32
+
+    $maxWidth = [Math]::Max(320, $workArea.Width - $reservedWidth)
+    $maxHeight = [Math]::Max(320, $workArea.Height - $reservedHeight)
+
+    $Window.MaxWidth = $maxWidth
+    $Window.MaxHeight = $maxHeight
+
+    if ($Window.Width -gt $maxWidth) {
+        $Window.Width = $maxWidth
+    }
+    if ($Window.Height -gt $maxHeight) {
+        $Window.Height = $maxHeight
+    }
+
+    $Window.Left = $workArea.Left + [Math]::Max(0, ($workArea.Width - $Window.Width) / 2)
+    $Window.Top = $workArea.Top + [Math]::Max(0, ($workArea.Height - $Window.Height) / 2)
 }
 
 function Update-PinBorderColors {
@@ -1341,6 +1378,7 @@ function Show-ProgressUi {
     Invoke-Ui {
         $PinView.Visibility      = "Collapsed"
         $ProgressView.Visibility = "Visible"
+        $MainScrollViewer.ScrollToTop()
 
         # Bloquer actions pendant provisioning
         $CloseButton.IsEnabled    = $false
