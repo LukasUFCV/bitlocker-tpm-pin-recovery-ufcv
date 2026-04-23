@@ -798,7 +798,7 @@ $Xaml = @"
                                                        FontSize="15"
                                                        FontWeight="Bold"
                                                        Foreground="{StaticResource UfcvBlueDarkBrush}"/>
-                                            <TextBlock Text="Votre code PIN reste nécessaire au démarrage du poste. Un aperçu de l'écran demandé au redémarrage est disponible."
+                                            <TextBlock Text="Votre code PIN reste nécessaire au démarrage du poste. Un rappel visuel vous sera présenté avant le lancement effectif de l'activation."
                                                        Margin="0,3,0,0"
                                                        FontSize="10.5"
                                                        Foreground="{StaticResource TextPrimaryBrush}"
@@ -811,18 +811,13 @@ $Xaml = @"
                                                     HorizontalAlignment="Right"
                                                     VerticalAlignment="Center"
                                                     Margin="14,0,0,0">
-                                            <Button Name="PinPromptInfoButton"
-                                                    Content="Voir un aperçu"
-                                                    Width="138"
-                                                    Margin="0,0,8,0"
-                                                    Style="{StaticResource SecondaryButton}"/>
                                             <Button Name="PostponeButton"
                                                     Content="Reporter"
-                                                    Width="126"
+                                                    Width="136"
                                                     Style="{StaticResource SecondaryButton}"/>
                                             <Button Name="ValidateButton"
                                                     Content="Lancer l'activation"
-                                                    Width="158"
+                                                    Width="176"
                                                     Margin="8,0,0,0"
                                                     Style="{StaticResource PrimaryButton}"/>
                                         </StackPanel>
@@ -1092,7 +1087,6 @@ $PinInputBorder   = $Window.FindName("PinInputBorder")
 $PinConfirmBorder = $Window.FindName("PinConfirmBorder")
 $PinStatusText    = $Window.FindName("PinStatusText")
 $ValidateButton   = $Window.FindName("ValidateButton")
-$PinPromptInfoButton = $Window.FindName("PinPromptInfoButton")
 $PostponeButton   = $Window.FindName("PostponeButton")
 $PostponeCounter  = $Window.FindName("PostponeCounter")
 $CloseButton      = $Window.FindName("CloseButton")
@@ -1108,7 +1102,7 @@ $ProgressSteps   = $Window.FindName("ProgressSteps")
 $ProgressStatus  = $Window.FindName("ProgressStatus")
 $FinishButton    = $Window.FindName("FinishButton")
 
-if (-not $PinInput -or -not $PinConfirm -or -not $PinInputBorder -or -not $PinConfirmBorder -or -not $PinStatusText -or -not $ValidateButton -or -not $PinPromptInfoButton -or -not $PostponeButton -or -not $PostponeCounter -or -not $CloseButton -or -not $LogoImage -or -not $LogoFallback `
+if (-not $PinInput -or -not $PinConfirm -or -not $PinInputBorder -or -not $PinConfirmBorder -or -not $PinStatusText -or -not $ValidateButton -or -not $PostponeButton -or -not $PostponeCounter -or -not $CloseButton -or -not $LogoImage -or -not $LogoFallback `
     -or -not $PinView -or -not $ProgressView -or -not $ProgressBar -or -not $ProgressPercent -or -not $ProgressSteps -or -not $ProgressStatus -or -not $FinishButton) {
     Write-Error "Échec de récupération des contrôles XAML. Le XAML peut être corrompu."
     exit 1
@@ -1205,7 +1199,6 @@ $script:UserAction = $null
 $script:Pin = $null
 $script:IsProvisioning = $false
 $script:RestartPromptShown = $false
-$script:PinPromptPreviewShown = $false
 $script:BitLockerPinPromptPreviewBitmap = $null
 
 # Couleur compteur selon urgence
@@ -1320,8 +1313,6 @@ $Window.Add_Loaded({
 })
 
 function Show-BitLockerPinPromptInfo {
-    $script:PinPromptPreviewShown = $true
-
     $dialogXaml = @"
 <Window
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -1535,12 +1526,23 @@ function Show-BitLockerPinPromptInfo {
     $previewImage = $dialog.FindName("PinPromptPreviewImage")
     $previewFallback = $dialog.FindName("PinPromptPreviewFallback")
 
+    $state = [pscustomobject]@{
+        Accepted = $false
+    }
+
     $closeAction = {
+        $state.Accepted = $false
+        $dialog.DialogResult = $false
+        $dialog.Close()
+    }
+
+    $confirmAction = {
+        $state.Accepted = $true
         $dialog.DialogResult = $true
         $dialog.Close()
     }
 
-    $okButton.Add_Click($closeAction)
+    $okButton.Add_Click($confirmAction)
     $closeButton.Add_Click($closeAction)
 
     $dialog.Add_Loaded({
@@ -1560,6 +1562,8 @@ function Show-BitLockerPinPromptInfo {
     } catch {
         Write-Warning "Impossible d'afficher la fenêtre d'information PIN BitLocker : $($_.Exception.Message)"
     }
+
+    return $state.Accepted
 }
 
 function Show-RestartPrompt {
@@ -2552,10 +2556,6 @@ function Start-BitLockerProvisioningAsync {
 # ==========================================================
 # Events boutons
 # ==========================================================
-$PinPromptInfoButton.Add_Click({
-    Show-BitLockerPinPromptInfo
-})
-
 $ValidateButton.Add_Click({
     $pin = $PinInput.Password
     $pinConfirm = $PinConfirm.Password
@@ -2575,14 +2575,15 @@ $ValidateButton.Add_Click({
         return
     }
 
-    $script:UserAction = "Provisioning"
-    $script:Pin = $pin
-
     try {
-        if (-not $script:PinPromptPreviewShown) {
-            Show-BitLockerPinPromptInfo
+        $pinPromptConfirmed = Show-BitLockerPinPromptInfo
+        if (-not $pinPromptConfirmed) {
+            $script:UserAction = $null
+            return
         }
 
+        $script:UserAction = "Provisioning"
+        $script:Pin = $pin
         Start-BitLockerProvisioningAsync -PlainPin $pin
     } catch {
         Complete-Ui -finalStatus ("Erreur interne : " + $_.Exception.Message) -isError $true
