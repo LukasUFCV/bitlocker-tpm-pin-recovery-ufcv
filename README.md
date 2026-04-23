@@ -1,5 +1,7 @@
 # Déploiement BitLocker TPM + PIN avec sauvegarde de la clé de récupération dans AD DS (UFCV)
 
+---
+
 ## Vue d’ensemble
 
 Ce dépôt contient un unique script PowerShell, [`BitLocker-Enable-TPM-PIN-Recovery_UFCV.ps1`](./BitLocker-Enable-TPM-PIN-Recovery_UFCV.ps1), qui met en œuvre un flux d’activation BitLocker pour un poste Windows joint à un domaine Active Directory.
@@ -16,7 +18,8 @@ Le script :
 - gère un compteur de reports persistant ;
 - affiche l’avancement dans une vue de progression pendant le provisioning.
 
-Le dépôt est manifestement destiné à un contexte interne UFCV. Cette spécialisation est visible dans le code par le domaine codé en dur, les valeurs de stratégie attendues, les chemins de stockage locaux et le texte des messages utilisateur.
+> [!IMPORTANT]
+> Le dépôt est manifestement destiné à un contexte interne UFCV. Cette spécialisation est visible dans le code par le domaine codé en dur, les valeurs de stratégie attendues, les chemins de stockage locaux et le texte des messages utilisateur.
 
 ---
 
@@ -34,18 +37,19 @@ Le workflow réel, tel qu’implémenté, est le suivant :
 8. Il vérifie l’état BitLocker du volume `C:`.
 9. Il charge une fenêtre WPF avec deux zones de saisie, une vue de progression et des boutons de validation, report et fermeture.
 10. Le PIN est validé côté UI et côté logique :
-   - uniquement des chiffres ;
-   - entre 6 et 20 caractères ;
-   - non strictement croissant ;
-   - non strictement décroissant ;
-   - identique dans les deux champs.
+    - uniquement des chiffres ;
+    - entre 6 et 20 caractères ;
+    - non strictement croissant ;
+    - non strictement décroissant ;
+    - identique dans les deux champs.
 11. En cas de validation, le provisioning est exécuté dans un runspace asynchrone.
 12. Le runspace vérifie ou crée un `RecoveryPassword`, le sauvegarde dans AD DS, supprime d’éventuels protecteurs `TpmPin` existants, puis appelle `Enable-BitLocker`.
 13. Si `Enable-BitLocker` renvoie l’erreur `0x80310060`, le script crée un fichier indicateur `PendingReboot.flag` et demande un redémarrage avant de relancer.
 14. En cas de succès, le compteur de report est réinitialisé en supprimant `PostponeCount.txt`.
 15. L’interface passe en mode progression pendant l’exécution, puis affiche un bouton de fermeture en fin de traitement.
 
-Le script ne propose pas de mode silencieux, pas de paramètre CLI et pas de configuration externe. Toute la logique est codée dans le `.ps1`.
+> [!NOTE]
+> Le script ne propose pas de mode silencieux, pas de paramètre CLI et pas de configuration externe. Toute la logique est codée dans le `.ps1`.
 
 ---
 
@@ -175,7 +179,8 @@ Le traitement de provisioning est exécuté dans un runspace séparé afin de ne
 
 ## Prérequis
 
-Le script ne vérifie pas tous les prérequis possibles, mais son code suppose au minimum :
+> [!NOTE]
+> Le script ne vérifie pas tous les prérequis possibles, mais son code suppose au minimum :
 
 - un hôte Windows capable de charger WPF ;
 - des cmdlets et assemblies disponibles pour `Set-Culture`, `Set-WinSystemLocale`, `Set-WinUILanguageOverride`, `Get-BitLockerVolume` et les cmdlets BitLocker ;
@@ -213,7 +218,8 @@ Le script ne prend aucun de ces paramètres en ligne de commande.
 
 ## Validation des stratégies / du registre
 
-La validation du registre est purement comparative. Le script ne corrige pas les valeurs, ne les crée pas et ne les écrit pas. Il s’en sert uniquement pour décider si le poste est éligible.
+> [!NOTE]
+> La validation du registre est purement comparative. Le script ne corrige pas les valeurs, ne les crée pas et ne les écrit pas. Il s’en sert uniquement pour décider si le poste est éligible.
 
 ### Règles appliquées
 
@@ -301,7 +307,8 @@ Le bouton `Fermer` est aussi activé après une erreur, ce qui permet de quitter
 
 ## Mécanisme de report
 
-Le report n’est pas basé sur une durée, mais sur un compteur persistant.
+> [!NOTE]
+> Le report n’est pas basé sur une durée, mais sur un compteur persistant.
 
 ### Stockage
 
@@ -474,7 +481,8 @@ Le dépôt ne fournit pas de mécanisme de journalisation centralisée. Les trac
 
 ## Limites
 
-Ce dépôt n’est pas un outil générique de déploiement BitLocker.
+> [!WARNING]
+> Ce dépôt n’est pas un outil générique de déploiement BitLocker.
 
 Ses principales limites sont les suivantes :
 
@@ -500,13 +508,13 @@ En pratique, le script ressemble à un artefact de déploiement interne UFCV plu
 
 Le dépôt ne contient qu’un script d’exécution direct.
 
-Exemple de lancement :
+### Exemple de lancement
 
 ```powershell
 powershell.exe -ExecutionPolicy Bypass -File .\BitLocker-Enable-TPM-PIN-Recovery_UFCV.ps1
 ```
 
-Contexte d’exécution recommandé par le code :
+### Contexte d’exécution recommandé par le code
 
 - environnement Windows ;
 - session capable d’afficher la fenêtre WPF ;
