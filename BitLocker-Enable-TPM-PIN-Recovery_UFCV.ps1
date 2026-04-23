@@ -645,17 +645,16 @@ $Xaml = @"
                     </Border>
                 </Grid>
 
-                <Viewbox Grid.Row="1"
-                         Margin="20,12,20,18"
-                         Stretch="Uniform"
-                         StretchDirection="DownOnly">
-                    <Grid Width="860" Height="338">
+                <Grid Grid.Row="1"
+                      Margin="20,12,20,18"
+                      VerticalAlignment="Stretch">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="2.22*"/>
                             <ColumnDefinition Width="0.92*"/>
                         </Grid.ColumnDefinitions>
 
                         <Border Grid.Column="0"
+                                VerticalAlignment="Stretch"
                                 Background="{StaticResource SurfaceBrush}"
                                 BorderBrush="{StaticResource BorderBrush}"
                                 BorderThickness="1"
@@ -669,6 +668,7 @@ $Xaml = @"
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
 
@@ -774,7 +774,7 @@ $Xaml = @"
                                                LineHeight="14"/>
                                 </Border>
 
-                                <Border Grid.Row="5"
+                                <Border Grid.Row="6"
                                         Margin="0,10,0,0"
                                         CornerRadius="12"
                                         Background="{StaticResource UfcvBlueSoftBrush}"
@@ -949,6 +949,7 @@ $Xaml = @"
                         </Border>
 
                         <Border Grid.Column="1"
+                                VerticalAlignment="Stretch"
                                 Margin="12,0,0,0"
                                 Background="{StaticResource SurfaceBrush}"
                                 BorderBrush="{StaticResource BorderBrush}"
@@ -960,6 +961,7 @@ $Xaml = @"
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
@@ -1007,12 +1009,12 @@ $Xaml = @"
                                     </StackPanel>
                                 </Border>
 
-                                <Border Grid.Row="3"
+                                <Border Grid.Row="4"
                                         Margin="0,10,0,0"
                                         Height="1"
                                         Background="{StaticResource BorderBrush}"/>
 
-                                <TextBlock Grid.Row="4"
+                                <TextBlock Grid.Row="5"
                                            Margin="0,10,0,0"
                                            Text="Disponibilité"
                                            FontFamily="Bahnschrift SemiCondensed"
@@ -1020,7 +1022,7 @@ $Xaml = @"
                                            FontWeight="Bold"
                                            Foreground="{StaticResource TextPrimaryBrush}"/>
 
-                                <StackPanel Grid.Row="5" Margin="0,6,0,0">
+                                <StackPanel Grid.Row="6" Margin="0,6,0,0">
                                     <TextBlock Name="PostponeCounter"
                                                Text="Reports restants : 99/99"
                                                FontSize="16"
@@ -1042,8 +1044,7 @@ $Xaml = @"
                                 </StackPanel>
                             </Grid>
                         </Border>
-                    </Grid>
-                </Viewbox>
+                </Grid>
             </Grid>
         </Border>
     </Border>
