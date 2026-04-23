@@ -971,7 +971,7 @@ $Xaml = @"
                                 </Grid.RowDefinitions>
 
                                 <TextBlock Grid.Row="0"
-                                           Text="Accompagnement"
+                                           Text="À quoi ça sert ?"
                                            FontFamily="Bahnschrift SemiCondensed"
                                            FontSize="17"
                                            FontWeight="Bold"
@@ -979,7 +979,7 @@ $Xaml = @"
 
                                 <TextBlock Grid.Row="1"
                                            Margin="0,6,0,0"
-                                           Text="L'outil vous guide sans exposer d'informations techniques inutiles."
+                                           Text="Cette opération sert à protéger le poste UFCV. BitLocker chiffre les données de l'ordinateur pour mieux sécuriser les informations en cas de perte, de vol ou d'accès non autorisé. Le code PIN demandé renforce cette protection au démarrage."
                                            FontSize="10.5"
                                            Foreground="{StaticResource TextSecondaryBrush}"
                                            TextWrapping="Wrap"
