@@ -1464,6 +1464,222 @@ function Show-RestartPrompt {
     return $state.Choice
 }
 
+function Show-AdBackupFailurePrompt {
+    param(
+        [string]$TechnicalDetail
+    )
+
+    $dialogXaml = @"
+<Window
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="UFCV - Sauvegarde AD requise"
+    Width="560"
+    SizeToContent="Height"
+    WindowStartupLocation="CenterOwner"
+    ResizeMode="NoResize"
+    WindowStyle="None"
+    AllowsTransparency="True"
+    Background="Transparent"
+    ShowInTaskbar="False"
+    Topmost="True">
+    <Border Background="Transparent" Margin="10">
+        <Border.Effect>
+            <DropShadowEffect Color="#22000000" BlurRadius="18" ShadowDepth="3" Opacity="0.45"/>
+        </Border.Effect>
+
+        <Border Background="#F3F6F9" BorderBrush="#D9E4ED" BorderThickness="1" CornerRadius="18" Padding="18">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0" Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel>
+                        <TextBlock Text="Sauvegarde de la clé non confirmée"
+                                   FontFamily="Bahnschrift SemiCondensed"
+                                   FontSize="24"
+                                   FontWeight="Bold"
+                                   Foreground="#24364A"/>
+                        <TextBlock Text="Finalisation de la protection BitLocker"
+                                   Margin="0,3,0,0"
+                                   FontSize="11.5"
+                                   Foreground="#5F7285"/>
+                    </StackPanel>
+
+                    <Button Name="AdErrorCloseButton"
+                            Grid.Column="1"
+                            Width="32"
+                            Height="32"
+                            Margin="12,0,0,0"
+                            Background="White"
+                            BorderBrush="#D9E4ED"
+                            BorderThickness="1"
+                            Foreground="#5F7285"
+                            FontSize="16"
+                            FontWeight="SemiBold"
+                            Cursor="Hand"
+                            Content="×"/>
+                </Grid>
+
+                <Border Grid.Row="1"
+                        Background="#FCEEEE"
+                        BorderBrush="#E8B7B4"
+                        BorderThickness="1"
+                        CornerRadius="14"
+                        Padding="16,14">
+                    <TextBlock Text="L'opération ne peut pas être finalisée tant que la sauvegarde de la clé BitLocker dans l'annuaire UFCV n'a pas pu être validée."
+                               FontSize="12.5"
+                               Foreground="#24364A"
+                               TextWrapping="Wrap"
+                               LineHeight="18"/>
+                </Border>
+
+                <Border Grid.Row="2"
+                        Margin="0,12,0,0"
+                        Background="#E8F5FB"
+                        BorderBrush="#C6E5F4"
+                        BorderThickness="1"
+                        CornerRadius="12"
+                        Padding="14,10">
+                    <StackPanel>
+                        <TextBlock Text="Causes probables"
+                                   FontSize="11.5"
+                                   FontWeight="SemiBold"
+                                   Foreground="#0F7CB5"/>
+                        <TextBlock Margin="0,6,0,0"
+                                   Text="Le poste n'est peut-être plus correctement connecté au réseau UFCV, le contrôleur de domaine n'est pas joignable, ou la sauvegarde dans l'AD n'a pas pu être confirmée."
+                                   FontSize="11"
+                                   Foreground="#24364A"
+                                   TextWrapping="Wrap"
+                                   LineHeight="17"/>
+                        <TextBlock Margin="0,6,0,0"
+                                   Text="Reconnectez-vous au réseau UFCV ou au VPN, puis choisissez Réessayer."
+                                   FontSize="11"
+                                   Foreground="#24364A"
+                                   TextWrapping="Wrap"
+                                   LineHeight="17"/>
+                        <TextBlock Name="AdErrorTechnicalText"
+                                   Visibility="Collapsed"
+                                   Margin="0,8,0,0"
+                                   FontSize="10.5"
+                                   Foreground="#5F7285"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+
+                <TextBlock Grid.Row="3"
+                           Name="AdErrorReporterHint"
+                           Visibility="Collapsed"
+                           Margin="0,10,0,0"
+                           FontSize="10.5"
+                           Foreground="#C44F4B"
+                           Text="Le report n'est plus disponible sur ce poste."/>
+
+                <StackPanel Grid.Row="4"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Right"
+                            Margin="0,14,0,0">
+                    <Button Name="AdErrorPostponeButton"
+                            Width="132"
+                            Height="42"
+                            Margin="0,0,8,0"
+                            Background="White"
+                            BorderBrush="#D9E4ED"
+                            BorderThickness="1"
+                            Foreground="#24364A"
+                            FontSize="13"
+                            FontWeight="SemiBold"
+                            Cursor="Hand"
+                            Content="Reporter"/>
+                    <Button Name="AdErrorRetryButton"
+                            Width="150"
+                            Height="42"
+                            Background="#1696D2"
+                            BorderBrush="#1696D2"
+                            BorderThickness="1"
+                            Foreground="White"
+                            FontSize="13"
+                            FontWeight="SemiBold"
+                            Cursor="Hand"
+                            Content="Réessayer"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Border>
+</Window>
+"@
+
+    try {
+        $reader = New-Object System.Xml.XmlNodeReader ([xml]$dialogXaml)
+        $dialog = [Windows.Markup.XamlReader]::Load($reader)
+    } catch {
+        Write-Warning "Impossible de charger la fenêtre d'erreur AD : $($_.Exception.Message)"
+        return "dismiss"
+    }
+
+    if ($Window -and $Window.IsVisible) {
+        try { $dialog.Owner = $Window } catch {}
+    } else {
+        $dialog.WindowStartupLocation = "CenterScreen"
+    }
+
+    $closeButton    = $dialog.FindName("AdErrorCloseButton")
+    $retryButton    = $dialog.FindName("AdErrorRetryButton")
+    $postponeButton = $dialog.FindName("AdErrorPostponeButton")
+    $hintText       = $dialog.FindName("AdErrorReporterHint")
+    $technicalText  = $dialog.FindName("AdErrorTechnicalText")
+
+    if (-not [string]::IsNullOrWhiteSpace($TechnicalDetail)) {
+        $technicalText.Text = "Détail technique : $TechnicalDetail"
+        $technicalText.Visibility = "Visible"
+    }
+
+    if ($CurrentPostponeCount -ge $MaxPostpones) {
+        $postponeButton.IsEnabled = $false
+        $hintText.Visibility = "Visible"
+    }
+
+    $state = [pscustomobject]@{
+        Choice = "dismiss"
+    }
+
+    $closeAction = {
+        $state.Choice = "dismiss"
+        $dialog.Close()
+    }
+
+    $closeButton.Add_Click($closeAction)
+
+    $retryButton.Add_Click({
+        $state.Choice = "retry"
+        $dialog.Close()
+    })
+
+    $postponeButton.Add_Click({
+        $state.Choice = "postpone"
+        $dialog.Close()
+    })
+
+    try {
+        [void]$dialog.ShowDialog()
+    } catch {
+        Write-Warning "Impossible d'afficher la fenêtre d'erreur AD : $($_.Exception.Message)"
+        $state.Choice = "dismiss"
+    }
+
+    return $state.Choice
+}
+
 function Update-PinBorderColors {
     $pin        = $PinInput.Password
     $pinConfirm = $PinConfirm.Password
@@ -1801,8 +2017,8 @@ function Start-BitLockerProvisioningAsync {
         function Emit([int]$percent, [string]$text, [string]$tag = "info") {
             [pscustomobject]@{ kind="progress"; percent=$percent; text=$text; tag=$tag }
         }
-        function Result([string]$status, [string]$message) {
-            [pscustomobject]@{ kind="result"; status=$status; message=$message }
+        function Result([string]$status, [string]$message, [string]$detail = $null) {
+            [pscustomobject]@{ kind="result"; status=$status; message=$message; detail=$detail }
         }
 
         try { Import-Module BitLocker -ErrorAction Stop } catch { }
@@ -1839,8 +2055,15 @@ function Start-BitLockerProvisioningAsync {
 
         # 2) Backup AD
         Emit 45 "Étape 2/3 : sauvegarde du RecoveryPassword dans AD DS..." | Write-Output
-        Backup-BitLockerKeyProtector -MountPoint $MountPoint -KeyProtectorId $recId -ErrorAction Stop | Out-Null
-        Emit 55 "Sauvegarde AD effectuée." "ok" | Write-Output
+        try {
+            Backup-BitLockerKeyProtector -MountPoint $MountPoint -KeyProtectorId $recId -ErrorAction Stop | Out-Null
+            Emit 55 "Sauvegarde AD effectuée." "ok" | Write-Output
+        }
+        catch {
+            $detail = $_.Exception.Message
+            Emit 55 "Impossible de confirmer la sauvegarde de la clé dans l'annuaire UFCV." "error" | Write-Output
+            return Result "ad_backup_failed" "La sauvegarde de la clé BitLocker dans l'annuaire UFCV n'a pas pu être validée." $detail
+        }
 
         # 3) Enable-BitLocker
         Emit 65 "Étape 3/3 : activation BitLocker (Used Space Only, TPM + PIN)..." | Write-Output
@@ -1923,6 +2146,7 @@ function Start-BitLockerProvisioningAsync {
 
     $script:__BL_Timer.Add_Tick({
         $showRestartPrompt = $false
+        $adBackupPrompt = $null
 
         # Consommer les nouveaux éléments
         while ($script:__BL_LastIndex -lt $script:__BL_Output.Count) {
@@ -1967,6 +2191,14 @@ function Start-BitLockerProvisioningAsync {
                     Set-Progress 100 $res.message "warn"
                     Complete-Ui -finalStatus $res.message -isError $false -state "info"
                 }
+                elseif ($res -and $res.status -eq "ad_backup_failed") {
+                    Set-Progress 100 $res.message "error"
+                    Complete-Ui -finalStatus $res.message -isError $true -state "error"
+                    if ($res.detail) {
+                        Add-StepLine -text ("Détail technique : " + $res.detail) -tag "error"
+                    }
+                    $adBackupPrompt = $res
+                }
                 elseif ($res -and $res.status -eq "policy_pending") {
                     Set-Progress 100 $res.message "warn"
                     Complete-Ui -finalStatus $res.message -isError $false -state "warn"
@@ -1987,6 +2219,25 @@ function Start-BitLockerProvisioningAsync {
             $script:__BL_PS = $null
             $script:__BL_RS = $null
             $script:__BL_Async = $null
+
+            if ($adBackupPrompt) {
+                $adChoice = Show-AdBackupFailurePrompt -TechnicalDetail $adBackupPrompt.detail
+
+                if ($adChoice -eq "retry" -and -not [string]::IsNullOrWhiteSpace($script:Pin)) {
+                    $script:UserAction = "Provisioning"
+                    Start-BitLockerProvisioningAsync -PlainPin $script:Pin
+                    return
+                }
+
+                if ($adChoice -eq "postpone") {
+                    $script:UserAction = "Postponed"
+                    if ($Window.IsVisible) {
+                        $Window.DialogResult = $false
+                        $Window.Close()
+                    }
+                    return
+                }
+            }
 
             if ($showRestartPrompt) {
                 $restartChoice = Show-RestartPrompt
