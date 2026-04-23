@@ -930,7 +930,9 @@ $Xaml = @"
 
                                         <ListBox Name="ProgressSteps"
                                                  Grid.Row="1"
-                                                 Margin="0,8,0,0"/>
+                                                 Margin="0,8,0,0"
+                                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"/>
                                     </Grid>
                                 </Border>
 
@@ -1579,6 +1581,33 @@ function Show-ProgressUi {
     }
 }
 
+function Scroll-ProgressStepsToLatest {
+    if (-not $ProgressSteps -or $ProgressSteps.Items.Count -eq 0) {
+        return
+    }
+
+    $latestItem = $ProgressSteps.Items[$ProgressSteps.Items.Count - 1]
+    if ($null -eq $latestItem) {
+        return
+    }
+
+    $scrollAction = [System.Action]{
+        try {
+            $ProgressSteps.UpdateLayout()
+            $ProgressSteps.ScrollIntoView($latestItem)
+        } catch {
+        }
+    }
+
+    if ($Window.Dispatcher.CheckAccess()) {
+        $null = $Window.Dispatcher.BeginInvoke([System.Windows.Threading.DispatcherPriority]::Background, $scrollAction)
+    } else {
+        Invoke-Ui {
+            $null = $Window.Dispatcher.BeginInvoke([System.Windows.Threading.DispatcherPriority]::Background, $scrollAction)
+        }
+    }
+}
+
 function Get-ProgressStateBrush([string]$tag) {
     switch ($tag) {
         "ok"    { return $UiBrushes.Success }
@@ -1670,6 +1699,7 @@ function Add-StepLine([string]$text, [string]$tag = "info") {
         $itemBorder.Child = $panel
 
         [void]$ProgressSteps.Items.Add($itemBorder)
+        Scroll-ProgressStepsToLatest
     }
 }
 
