@@ -811,6 +811,7 @@ $Xaml = @"
                                         <Button Name="PinPromptContinueButton"
                                                 Content="J'ai compris"
                                                 Width="150"
+                                                Visibility="Collapsed"
                                                 Style="{StaticResource PrimaryButton}"/>
                                         <Button Name="FinishButton"
                                                 Content="Fermer"
@@ -2055,8 +2056,8 @@ function Show-ProgressUi {
     Invoke-Ui {
         Set-Step2Layout
         $PinPromptContinueButton.Content = if ($script:PinPromptAcknowledged) { "Compris" } else { "J'ai compris" }
-        $PinPromptContinueButton.IsEnabled = -not $script:PinPromptAcknowledged
-        $PinPromptContinueButton.Visibility = if ($script:PinPromptAcknowledged) { "Collapsed" } else { "Visible" }
+        $PinPromptContinueButton.IsEnabled = $false
+        $PinPromptContinueButton.Visibility = "Collapsed"
         $ProgressBar.Value = 0
         $ProgressPercent.Text = "0%"
         $ProgressPercent.Foreground = $UiBrushes.Info
