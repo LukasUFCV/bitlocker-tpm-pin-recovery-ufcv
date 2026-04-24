@@ -434,41 +434,6 @@ $Xaml = @"
             </Style.Triggers>
         </Style>
 
-        <Style x:Key="CloseButton" TargetType="Button">
-            <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
-            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
-            <Setter Property="Width" Value="32"/>
-            <Setter Property="Height" Value="32"/>
-            <Setter Property="FontSize" Value="16"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="CloseRoot"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="10">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="CloseRoot" Property="Background" Value="{StaticResource UfcvBlueSoftBrush}"/>
-                                <Setter TargetName="CloseRoot" Property="BorderBrush" Value="{StaticResource UfcvBlueBrush}"/>
-                                <Setter Property="Foreground" Value="{StaticResource UfcvBlueDarkBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="CloseRoot" Property="Opacity" Value="0.4"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
         <Style x:Key="PasswordFieldStyle" TargetType="PasswordBox">
             <Setter Property="FontFamily" Value="Segoe UI"/>
             <Setter Property="FontSize" Value="16"/>
@@ -580,19 +545,12 @@ $Xaml = @"
                                     BorderThickness="1"
                                     CornerRadius="11"
                                     Padding="10,6"
-                                    Margin="0,0,10,0"
                                     VerticalAlignment="Center">
                                 <TextBlock Text="DSI - sécurisation du poste"
                                            FontSize="10.5"
                                            FontWeight="SemiBold"
                                            Foreground="{StaticResource UfcvBlueDarkBrush}"/>
                             </Border>
-
-                            <Button Name="CloseButton"
-                                    Content="×"
-                                    Style="{StaticResource CloseButton}"
-                                    Panel.ZIndex="50"
-                                    VerticalAlignment="Center"/>
                         </StackPanel>
                     </Grid>
 
@@ -1089,7 +1047,6 @@ $PinStatusText    = $Window.FindName("PinStatusText")
 $ValidateButton   = $Window.FindName("ValidateButton")
 $PostponeButton   = $Window.FindName("PostponeButton")
 $PostponeCounter  = $Window.FindName("PostponeCounter")
-$CloseButton      = $Window.FindName("CloseButton")
 $LogoImage        = $Window.FindName("LogoImage")
 $LogoFallback     = $Window.FindName("LogoFallback")
 
@@ -1102,7 +1059,7 @@ $ProgressSteps   = $Window.FindName("ProgressSteps")
 $ProgressStatus  = $Window.FindName("ProgressStatus")
 $FinishButton    = $Window.FindName("FinishButton")
 
-if (-not $PinInput -or -not $PinConfirm -or -not $PinInputBorder -or -not $PinConfirmBorder -or -not $PinStatusText -or -not $ValidateButton -or -not $PostponeButton -or -not $PostponeCounter -or -not $CloseButton -or -not $LogoImage -or -not $LogoFallback `
+if (-not $PinInput -or -not $PinConfirm -or -not $PinInputBorder -or -not $PinConfirmBorder -or -not $PinStatusText -or -not $ValidateButton -or -not $PostponeButton -or -not $PostponeCounter -or -not $LogoImage -or -not $LogoFallback `
     -or -not $PinView -or -not $ProgressView -or -not $ProgressBar -or -not $ProgressPercent -or -not $ProgressSteps -or -not $ProgressStatus -or -not $FinishButton) {
     Write-Error "Échec de récupération des contrôles XAML. Le XAML peut être corrompu."
     exit 1
@@ -1215,9 +1172,6 @@ if ($CurrentPostponeCount -ge $MaxPostpones) {
     $PostponeButton.IsEnabled = $false
     $PostponeButton.Content = "Limite atteinte"
     $PostponeButton.Opacity = 0.5
-
-    $CloseButton.IsEnabled = $false
-    $CloseButton.Opacity = 0.3
 
     $PostponeCounter.Foreground = $UiBrushes.Error
     $PostponeCounter.Text = "Limite de reports atteinte (0/$MaxPostpones)"
@@ -1342,11 +1296,6 @@ function Show-BitLockerPinPromptInfo {
                 </Grid.RowDefinitions>
 
                 <Grid Grid.Row="0" Margin="0,0,0,12">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-
                     <StackPanel>
                         <TextBlock Text="À quoi ressemblera la demande de code PIN ?"
                                    FontFamily="Bahnschrift SemiCondensed"
@@ -1358,20 +1307,6 @@ function Show-BitLockerPinPromptInfo {
                                    FontSize="11.5"
                                    Foreground="#5F7285"/>
                     </StackPanel>
-
-                    <Button Name="PinPromptInfoCloseButton"
-                            Grid.Column="1"
-                            Width="32"
-                            Height="32"
-                            Margin="12,0,0,0"
-                            Background="White"
-                            BorderBrush="#D9E4ED"
-                            BorderThickness="1"
-                            Foreground="#5F7285"
-                            FontSize="16"
-                            FontWeight="SemiBold"
-                            Cursor="Hand"
-                            Content="×"/>
                 </Grid>
 
                 <Border Grid.Row="1"
@@ -1485,6 +1420,18 @@ function Show-BitLockerPinPromptInfo {
                             Orientation="Horizontal"
                             HorizontalAlignment="Right"
                             Margin="0,14,0,0">
+                    <Button Name="PinPromptInfoCancelButton"
+                            Width="118"
+                            Height="42"
+                            Margin="0,0,8,0"
+                            Background="White"
+                            BorderBrush="#D9E4ED"
+                            BorderThickness="1"
+                            Foreground="#24364A"
+                            FontSize="13"
+                            FontWeight="SemiBold"
+                            Cursor="Hand"
+                            Content="Annuler"/>
                     <Button Name="PinPromptInfoOkButton"
                             Width="142"
                             Height="42"
@@ -1521,7 +1468,7 @@ function Show-BitLockerPinPromptInfo {
     $dialog.MaxWidth = [Math]::Max(520, $workArea.Width - 30)
     $dialog.MaxHeight = [Math]::Max(420, $workArea.Height - 30)
 
-    $closeButton = $dialog.FindName("PinPromptInfoCloseButton")
+    $cancelButton = $dialog.FindName("PinPromptInfoCancelButton")
     $okButton = $dialog.FindName("PinPromptInfoOkButton")
     $previewImage = $dialog.FindName("PinPromptPreviewImage")
     $previewFallback = $dialog.FindName("PinPromptPreviewFallback")
@@ -1543,7 +1490,7 @@ function Show-BitLockerPinPromptInfo {
     }
 
     $okButton.Add_Click($confirmAction)
-    $closeButton.Add_Click($closeAction)
+    $cancelButton.Add_Click($closeAction)
 
     $dialog.Add_Loaded({
         $bitmap = Get-BitLockerPinPromptPreviewBitmap
@@ -1602,11 +1549,6 @@ function Show-RestartPrompt {
                 </Grid.RowDefinitions>
 
                 <Grid Grid.Row="0" Margin="0,0,0,12">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-
                     <StackPanel>
                         <TextBlock Text="Redémarrage nécessaire"
                                    FontFamily="Bahnschrift SemiCondensed"
@@ -1618,20 +1560,6 @@ function Show-RestartPrompt {
                                    FontSize="11.5"
                                    Foreground="#5F7285"/>
                     </StackPanel>
-
-                    <Button Name="RestartCloseButton"
-                            Grid.Column="1"
-                            Width="32"
-                            Height="32"
-                            Margin="12,0,0,0"
-                            Background="White"
-                            BorderBrush="#D9E4ED"
-                            BorderThickness="1"
-                            Foreground="#5F7285"
-                            FontSize="16"
-                            FontWeight="SemiBold"
-                            Cursor="Hand"
-                            Content="×"/>
                 </Grid>
 
                 <Border Grid.Row="1"
@@ -1719,7 +1647,6 @@ function Show-RestartPrompt {
 
     $restartNowButton   = $restartWindow.FindName("RestartNowButton")
     $restartLaterButton = $restartWindow.FindName("RestartLaterButton")
-    $restartCloseButton = $restartWindow.FindName("RestartCloseButton")
     $restartErrorText   = $restartWindow.FindName("RestartErrorText")
 
     $state = [pscustomobject]@{
@@ -1732,12 +1659,10 @@ function Show-RestartPrompt {
     }
 
     $restartLaterButton.Add_Click($restartLaterAction)
-    $restartCloseButton.Add_Click($restartLaterAction)
 
     $restartNowButton.Add_Click({
         $restartNowButton.IsEnabled = $false
         $restartLaterButton.IsEnabled = $false
-        $restartCloseButton.IsEnabled = $false
 
         try {
             Restart-Computer -Force -ErrorAction Stop
@@ -1748,7 +1673,6 @@ function Show-RestartPrompt {
             $restartErrorText.Visibility = "Visible"
             $restartNowButton.IsEnabled = $true
             $restartLaterButton.IsEnabled = $true
-            $restartCloseButton.IsEnabled = $true
         }
     })
 
@@ -1797,11 +1721,6 @@ function Show-AdBackupFailurePrompt {
                 </Grid.RowDefinitions>
 
                 <Grid Grid.Row="0" Margin="0,0,0,12">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-
                     <StackPanel>
                         <TextBlock Text="Sauvegarde de la clé non confirmée"
                                    FontFamily="Bahnschrift SemiCondensed"
@@ -1813,20 +1732,6 @@ function Show-AdBackupFailurePrompt {
                                    FontSize="11.5"
                                    Foreground="#5F7285"/>
                     </StackPanel>
-
-                    <Button Name="AdErrorCloseButton"
-                            Grid.Column="1"
-                            Width="32"
-                            Height="32"
-                            Margin="12,0,0,0"
-                            Background="White"
-                            BorderBrush="#D9E4ED"
-                            BorderThickness="1"
-                            Foreground="#5F7285"
-                            FontSize="16"
-                            FontWeight="SemiBold"
-                            Cursor="Hand"
-                            Content="×"/>
                 </Grid>
 
                 <Border Grid.Row="1"
@@ -1887,6 +1792,18 @@ function Show-AdBackupFailurePrompt {
                             Orientation="Horizontal"
                             HorizontalAlignment="Right"
                             Margin="0,14,0,0">
+                    <Button Name="AdErrorDismissButton"
+                            Width="118"
+                            Height="42"
+                            Margin="0,0,8,0"
+                            Background="White"
+                            BorderBrush="#D9E4ED"
+                            BorderThickness="1"
+                            Foreground="#24364A"
+                            FontSize="13"
+                            FontWeight="SemiBold"
+                            Cursor="Hand"
+                            Content="Fermer"/>
                     <Button Name="AdErrorPostponeButton"
                             Width="132"
                             Height="42"
@@ -1931,7 +1848,7 @@ function Show-AdBackupFailurePrompt {
         $dialog.WindowStartupLocation = "CenterScreen"
     }
 
-    $closeButton    = $dialog.FindName("AdErrorCloseButton")
+    $dismissButton  = $dialog.FindName("AdErrorDismissButton")
     $retryButton    = $dialog.FindName("AdErrorRetryButton")
     $postponeButton = $dialog.FindName("AdErrorPostponeButton")
     $hintText       = $dialog.FindName("AdErrorReporterHint")
@@ -1956,7 +1873,7 @@ function Show-AdBackupFailurePrompt {
         $dialog.Close()
     }
 
-    $closeButton.Add_Click($closeAction)
+    $dismissButton.Add_Click($closeAction)
 
     $retryButton.Add_Click({
         $state.Choice = "retry"
@@ -2079,8 +1996,6 @@ function Show-ProgressUi {
         $ProgressView.Visibility = "Visible"
 
         # Bloquer actions pendant provisioning
-        $CloseButton.IsEnabled    = $false
-        $CloseButton.Opacity      = 0.3
         $PostponeButton.IsEnabled = $false
         $PostponeButton.Opacity   = 0.5
         $ValidateButton.IsEnabled = $false
@@ -2288,9 +2203,6 @@ function Complete-Ui([string]$finalStatus, [bool]$isError = $false, [string]$sta
         # Autoriser fermeture + bouton
         $FinishButton.Visibility = "Visible"
         $FinishButton.IsEnabled = $true
-
-        $CloseButton.IsEnabled = $true
-        $CloseButton.Opacity = 1.0
     }
 
     Add-StepLine -text $finalStatus -tag $state
@@ -2592,25 +2504,6 @@ $ValidateButton.Add_Click({
 
 $PostponeButton.Add_Click({
     Write-Output "Activation reportée via le bouton. Reports restants : $($MaxPostpones - $CurrentPostponeCount - 1)"
-    $script:UserAction = "Postponed"
-    $Window.DialogResult = $false
-    $Window.Close()
-})
-
-# CloseButton : si provisioning terminé => fermer sans report, sinon comportement "Plus tard"
-$CloseButton.Add_Click({
-    if ($script:IsProvisioning) {
-        return
-    }
-
-    if ($script:UserAction -eq "Completed") {
-        $script:UserAction = "Validated"
-        $Window.DialogResult = $true
-        $Window.Close()
-        return
-    }
-
-    Write-Output "Activation reportée via le bouton X. Reports restants : $($MaxPostpones - $CurrentPostponeCount - 1)"
     $script:UserAction = "Postponed"
     $Window.DialogResult = $false
     $Window.Close()
