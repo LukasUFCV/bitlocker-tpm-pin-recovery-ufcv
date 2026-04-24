@@ -254,17 +254,13 @@ try {
 catch {
     $detail = $_.Exception.Message
 
-    Write-Warning "Réseau UFCV non détecté : $detail"
-
-    [System.Windows.MessageBox]::Show(
-        "Ce poste n'est pas connecté au réseau UFCV (LAN/VPN) ou n'est pas sur le bon domaine.`n`n" +
-        "Domaine attendu : $ExpectedDomain`n" +
-        "Détail : $detail`n`n" +
-        "Veuillez vous connecter au réseau interne ou au VPN UFCV puis relancer.",
-        "BitLocker - Réseau requis",
-        "OK",
-        "Error"
-    ) | Out-Null
+    Write-Host ""
+    Write-Host "[ERREUR] Réseau UFCV requis" -ForegroundColor Red
+    Write-Host "Ce poste n'est pas connecté au réseau UFCV (LAN/VPN) ou n'est pas sur le bon domaine." -ForegroundColor Red
+    Write-Host "Domaine attendu : $ExpectedDomain" -ForegroundColor Yellow
+    Write-Host "Détail : $detail" -ForegroundColor Yellow
+    Write-Host "Veuillez vous connecter au réseau interne ou au VPN UFCV puis relancer le script." -ForegroundColor Yellow
+    Write-Host ""
 
     exit 1
 }
