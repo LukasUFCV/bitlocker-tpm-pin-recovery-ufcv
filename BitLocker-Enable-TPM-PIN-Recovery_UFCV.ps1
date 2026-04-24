@@ -765,51 +765,62 @@ $Xaml = @"
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="*"/>
-                                    <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
 
-                                <Border Grid.Row="0"
-                                        HorizontalAlignment="Left"
-                                        Background="{StaticResource UfcvBlueSoftBrush}"
-                                        BorderBrush="#C4E5F5"
-                                        BorderThickness="1"
-                                        CornerRadius="10"
-                                        Padding="9,4">
-                                    <TextBlock Text="Étape 2 sur 2"
-                                               FontSize="10"
-                                               FontWeight="SemiBold"
-                                               Foreground="{StaticResource UfcvBlueDarkBrush}"/>
-                                </Border>
+                                <Grid Grid.Row="0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
 
-                                <StackPanel Grid.Row="1" Margin="0,10,0,0">
-                                    <TextBlock Text="Configuration BitLocker en cours"
-                                               FontFamily="Bahnschrift SemiCondensed"
-                                               FontSize="22"
-                                               FontWeight="Bold"
-                                               Foreground="{StaticResource TextPrimaryBrush}"/>
-                                    <TextBlock Text="La sécurisation du poste est en cours. Merci de laisser cette fenêtre ouverte jusqu'à la fin de l'opération."
-                                               Margin="0,5,0,0"
-                                               FontSize="11"
-                                               Foreground="{StaticResource TextSecondaryBrush}"
-                                               TextWrapping="Wrap"
-                                               LineHeight="15"/>
-                                </StackPanel>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Configuration BitLocker en cours"
+                                                   FontFamily="Bahnschrift SemiCondensed"
+                                                   FontSize="22"
+                                                   FontWeight="Bold"
+                                                   Foreground="{StaticResource TextPrimaryBrush}"/>
+                                        <TextBlock Text="La sécurisation du poste est en cours. Merci de laisser cette fenêtre ouverte jusqu'à la fin de l'opération."
+                                                   Margin="0,5,0,0"
+                                                   FontSize="11"
+                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                   TextWrapping="Wrap"
+                                                   LineHeight="15"/>
+                                    </StackPanel>
 
-                                <Border Grid.Row="2"
+                                    <StackPanel Grid.Column="1"
+                                                Orientation="Horizontal"
+                                                HorizontalAlignment="Right"
+                                                VerticalAlignment="Top"
+                                                Margin="18,0,0,0">
+                                        <Button Name="PinPromptContinueButton"
+                                                Content="J'ai compris"
+                                                Width="150"
+                                                Style="{StaticResource PrimaryButton}"/>
+                                        <Button Name="FinishButton"
+                                                Content="Fermer"
+                                                Width="142"
+                                                Margin="8,0,0,0"
+                                                Visibility="Collapsed"
+                                                Style="{StaticResource PrimaryButton}"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <Border Grid.Row="1"
                                         Margin="0,10,0,0"
                                         Background="{StaticResource SurfaceAltBrush}"
                                         BorderBrush="{StaticResource BorderBrush}"
                                         BorderThickness="1"
                                         CornerRadius="14"
-                                        Padding="14,11">
+                                        Padding="14,10">
                                     <Grid>
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="Auto"/>
                                         </Grid.RowDefinitions>
                                         <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
@@ -819,38 +830,56 @@ $Xaml = @"
                                                    Text="Suivi de la configuration"
                                                    FontSize="12"
                                                    FontWeight="SemiBold"
-                                                   Foreground="{StaticResource TextPrimaryBrush}"/>
+                                                   Foreground="{StaticResource TextPrimaryBrush}"
+                                                   VerticalAlignment="Center"/>
+
+                                        <Border Grid.Row="0"
+                                                Grid.Column="1"
+                                                Margin="10,0,0,0"
+                                                Background="{StaticResource UfcvBlueSoftBrush}"
+                                                BorderBrush="#C4E5F5"
+                                                BorderThickness="1"
+                                                CornerRadius="10"
+                                                Padding="8,3">
+                                            <TextBlock Text="Étape 2 sur 2"
+                                                       FontSize="10"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{StaticResource UfcvBlueDarkBrush}"/>
+                                        </Border>
+
+                                        <TextBlock Name="ProgressStatus"
+                                                   Grid.Row="0"
+                                                   Grid.Column="2"
+                                                   Margin="12,0,12,0"
+                                                   Text="Préparation..."
+                                                   FontSize="11"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{StaticResource TextPrimaryBrush}"
+                                                   TextWrapping="NoWrap"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   VerticalAlignment="Center"/>
 
                                         <TextBlock Name="ProgressPercent"
                                                    Grid.Row="0"
-                                                   Grid.Column="1"
+                                                   Grid.Column="3"
                                                    Text="0%"
                                                    FontSize="14"
                                                    FontWeight="SemiBold"
                                                    Foreground="{StaticResource UfcvBlueDarkBrush}"
                                                    VerticalAlignment="Center"/>
 
-                                        <StackPanel Grid.Row="1"
-                                                    Grid.ColumnSpan="2"
-                                                    Margin="0,10,0,0">
-                                            <ProgressBar Name="ProgressBar"
-                                                         Minimum="0"
-                                                         Maximum="100"
-                                                         Value="0"
-                                                         Style="{StaticResource ProgressBarStyle}"/>
-                                            <TextBlock Name="ProgressStatus"
-                                                       Margin="0,8,0,0"
-                                                       Text="Préparation..."
-                                                       FontSize="11"
-                                                       FontWeight="SemiBold"
-                                                       Foreground="{StaticResource TextPrimaryBrush}"
-                                                       TextWrapping="Wrap"
-                                                       LineHeight="15"/>
-                                        </StackPanel>
+                                        <ProgressBar Name="ProgressBar"
+                                                     Grid.Row="1"
+                                                     Grid.ColumnSpan="4"
+                                                     Margin="0,8,0,0"
+                                                     Minimum="0"
+                                                     Maximum="100"
+                                                     Value="0"
+                                                     Style="{StaticResource ProgressBarStyle}"/>
                                     </Grid>
                                 </Border>
 
-                                <Border Grid.Row="3"
+                                <Border Grid.Row="2"
                                         Margin="0,8,0,0"
                                         Background="{StaticResource SurfaceAltBrush}"
                                         BorderBrush="{StaticResource BorderBrush}"
@@ -881,14 +910,6 @@ $Xaml = @"
                                                            Foreground="{StaticResource TextSecondaryBrush}"/>
                                             </StackPanel>
 
-                                            <Button Name="PinPromptContinueButton"
-                                                    Grid.Column="1"
-                                                    Content="J'ai compris"
-                                                    Width="150"
-                                                    HorizontalAlignment="Right"
-                                                    VerticalAlignment="Center"
-                                                    Margin="14,0,0,0"
-                                                    Style="{StaticResource PrimaryButton}"/>
                                         </Grid>
 
                                         <Grid Grid.Row="1">
@@ -953,12 +974,6 @@ $Xaml = @"
                                                                    Foreground="{StaticResource TextPrimaryBrush}"
                                                                    TextWrapping="Wrap"
                                                                    LineHeight="13.8"/>
-                                                        <TextBlock Text="Si l'écran apparaît, il suffit de saisir votre code PIN personnel pour poursuivre le démarrage."
-                                                                   Margin="0,4,0,0"
-                                                                   FontSize="10.2"
-                                                                   Foreground="{StaticResource TextPrimaryBrush}"
-                                                                   TextWrapping="Wrap"
-                                                                   LineHeight="13.8"/>
                                                     </StackPanel>
                                                 </Border>
                                             </StackPanel>
@@ -981,19 +996,13 @@ $Xaml = @"
                                                                Foreground="{StaticResource TextPrimaryBrush}"
                                                                TextWrapping="Wrap"
                                                                LineHeight="13.8"/>
-                                                    <TextBlock Text="- Déverrouillage automatique au démarrage si le poste est sur le bon réseau filaire."
+                                                    <TextBlock Text="Le poste peut alors se déverrouiller automatiquement au démarrage lorsqu'il est sur le bon réseau filaire."
                                                                Margin="0,4,0,0"
                                                                FontSize="10.2"
                                                                Foreground="{StaticResource TextPrimaryBrush}"
                                                                TextWrapping="Wrap"
                                                                LineHeight="13.8"/>
-                                                    <TextBlock Text="- Dans ce cas, la saisie du code PIN est évitée."
-                                                               Margin="0,4,0,0"
-                                                               FontSize="10.2"
-                                                               Foreground="{StaticResource TextPrimaryBrush}"
-                                                               TextWrapping="Wrap"
-                                                               LineHeight="13.8"/>
-                                                    <TextBlock Text="- Si le poste n'est pas sur ce réseau filaire, le code PIN reste requis."
+                                                    <TextBlock Text="Hors du réseau filaire UFCV, la saisie du code PIN reste nécessaire."
                                                                Margin="0,4,0,0"
                                                                FontSize="10.2"
                                                                Foreground="{StaticResource TextSecondaryBrush}"
@@ -1004,17 +1013,6 @@ $Xaml = @"
                                         </Grid>
                                     </Grid>
                                 </Border>
-
-                                <StackPanel Grid.Row="4"
-                                            Orientation="Horizontal"
-                                            HorizontalAlignment="Right"
-                                            Margin="0,10,0,0">
-                                    <Button Name="FinishButton"
-                                            Content="Fermer"
-                                            Width="142"
-                                            Visibility="Collapsed"
-                                            Style="{StaticResource PrimaryButton}"/>
-                                </StackPanel>
                                 </Grid>
                             </Grid>
                         </Border>
