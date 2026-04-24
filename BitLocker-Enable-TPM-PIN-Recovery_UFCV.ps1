@@ -348,7 +348,7 @@ $Xaml = @"
         <SolidColorBrush x:Key="SurfaceBrush" Color="#FFFFFF"/>
         <SolidColorBrush x:Key="SurfaceAltBrush" Color="#F8FBFD"/>
         <SolidColorBrush x:Key="BorderBrush" Color="#D9E4ED"/>
-        <SolidColorBrush x:Key="InputBorderBrush" Color="#C7D8E6"/>
+        <SolidColorBrush x:Key="InputBorderBrush" Color="#9CCDE3"/>
         <SolidColorBrush x:Key="UfcvBlueBrush" Color="#1696D2"/>
         <SolidColorBrush x:Key="UfcvBlueDarkBrush" Color="#0F7CB5"/>
         <SolidColorBrush x:Key="UfcvBlueSoftBrush" Color="#E8F5FB"/>
@@ -432,12 +432,12 @@ $Xaml = @"
 
         <Style x:Key="PasswordFieldStyle" TargetType="PasswordBox">
             <Setter Property="FontFamily" Value="Segoe UI"/>
-            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontSize" Value="18"/>
             <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Padding" Value="14,0"/>
+            <Setter Property="Padding" Value="16,0"/>
         </Style>
 
         <Style x:Key="ProgressBarStyle" TargetType="ProgressBar">
@@ -464,125 +464,72 @@ $Xaml = @"
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <Grid Grid.Row="0" Margin="22,14,18,8" Panel.ZIndex="40">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <Grid Width="120" Height="40">
-                                <Image Name="LogoImage"
-                                       Stretch="Uniform"
-                                       HorizontalAlignment="Left"
-                                       VerticalAlignment="Center"/>
-                                <TextBlock Name="LogoFallback"
-                                           Visibility="Collapsed"
-                                           Text="UFCV"
-                                           FontFamily="Bahnschrift SemiCondensed"
-                                           FontSize="26"
-                                           FontWeight="Bold"
-                                           Foreground="{StaticResource TextPrimaryBrush}"
-                                           VerticalAlignment="Center"/>
-                            </Grid>
+                    <Grid Grid.Row="0" Margin="22,16,22,10" Panel.ZIndex="40">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
 
-                            <TextBlock Text="Sécurisation des postes UFCV"
-                                       Margin="10,0,0,0"
-                                       FontSize="17"
-                                       FontWeight="SemiBold"
+                        <Grid Grid.Column="0" Width="120" Height="42" VerticalAlignment="Center">
+                            <Image Name="LogoImage"
+                                   Stretch="Uniform"
+                                   HorizontalAlignment="Left"
+                                   VerticalAlignment="Center"/>
+                            <TextBlock Name="LogoFallback"
+                                       Visibility="Collapsed"
+                                       Text="UFCV"
+                                       FontFamily="Bahnschrift SemiCondensed"
+                                       FontSize="26"
+                                       FontWeight="Bold"
                                        Foreground="{StaticResource TextPrimaryBrush}"
                                        VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Grid>
+                        </Grid>
 
-                    <Border Name="HeroBanner" Grid.Row="1" Margin="20,0,20,0" CornerRadius="14" Padding="17,11,17,11">
-                        <Border.Background>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                <GradientStop Color="#0F88C7" Offset="0"/>
-                                <GradientStop Color="#189AD8" Offset="0.58"/>
-                                <GradientStop Color="#46AEE3" Offset="1"/>
-                            </LinearGradientBrush>
-                        </Border.Background>
-
-                        <StackPanel>
-                            <TextBlock Text="Sécurisation de votre poste"
-                                       FontFamily="Bahnschrift SemiCondensed"
-                                       FontSize="22"
-                                       FontWeight="Bold"
-                                       Foreground="White"/>
+                        <StackPanel Grid.Column="1"
+                                    Margin="12,0,0,0"
+                                    VerticalAlignment="Center">
+                            <TextBlock Text="Sécurisation des postes UFCV"
+                                       FontSize="18"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource TextPrimaryBrush}"/>
                             <TextBlock Text="Cette opération configure un code PIN de démarrage afin de renforcer la sécurité de votre poste UFCV."
-                                       Margin="0,4,0,0"
+                                       Margin="0,3,0,0"
                                        FontSize="11.5"
-                                       Foreground="#EFF8FD"
+                                       Foreground="{StaticResource TextSecondaryBrush}"
                                        TextWrapping="Wrap"
                                        LineHeight="16"/>
                         </StackPanel>
-                    </Border>
+                    </Grid>
+
+                    <Border Name="HeroBanner" Grid.Row="1" Height="0" Visibility="Collapsed"/>
                 </Grid>
 
                 <Grid Name="MainLayoutGrid"
                       Grid.Row="1"
-                      Margin="20,12,20,18"
+                      Margin="20,8,20,18"
                       VerticalAlignment="Stretch">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="0.94*"/>
-                        <ColumnDefinition Width="2.18*"/>
+                        <ColumnDefinition Width="0"/>
+                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
                     <Border Name="SidePanelPinView"
                             Grid.Column="0"
-                            VerticalAlignment="Stretch"
-                            Background="{StaticResource SurfaceBrush}"
-                            BorderBrush="{StaticResource BorderBrush}"
-                            BorderThickness="1"
-                            CornerRadius="14"
-                            Padding="16,14">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-
-                            <TextBlock Grid.Row="0"
-                                       Text="À quoi ça sert ?"
-                                       FontFamily="Bahnschrift SemiCondensed"
-                                       FontSize="19"
-                                       FontWeight="Bold"
-                                       Foreground="{StaticResource UfcvBlueDarkBrush}"/>
-
-                            <Border Grid.Row="1"
-                                    Margin="0,10,0,0"
-                                    Background="{StaticResource UfcvBlueSoftBrush}"
-                                    BorderBrush="#C6E5F4"
-                                    BorderThickness="1"
-                                    CornerRadius="12"
-                                    Padding="12,10">
-                                <TextBlock Text="Cette configuration permet de mieux protéger le poste UFCV. Le code PIN renforce la sécurité dès le démarrage, avant l'ouverture de la session Windows."
-                                           FontSize="11"
-                                           Foreground="{StaticResource TextPrimaryBrush}"
-                                           TextWrapping="Wrap"
-                                           LineHeight="16"/>
-                            </Border>
-
-                            <TextBlock Name="PostponeCounter"
-                                       Grid.Row="3"
-                                       Text="Il vous reste 99 reports"
-                                       FontSize="15"
-                                       FontWeight="SemiBold"
-                                       Foreground="{StaticResource SuccessBrush}"
-                                       TextWrapping="Wrap"/>
-                        </Grid>
-                    </Border>
+                            Visibility="Collapsed"/>
 
                     <Border Grid.Column="1"
                             VerticalAlignment="Stretch"
-                            Margin="12,0,0,0"
+                            Margin="0"
                             Background="{StaticResource SurfaceBrush}"
                             BorderBrush="{StaticResource BorderBrush}"
                             BorderThickness="1"
-                            CornerRadius="14"
-                            Padding="18,15,18,15">
+                            CornerRadius="16"
+                            Padding="22,18,22,18">
                         <Grid>
                             <Grid Name="PinView">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
@@ -591,60 +538,79 @@ $Xaml = @"
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
 
-                                <Border Grid.Row="0"
-                                        HorizontalAlignment="Left"
-                                        Background="{StaticResource UfcvBlueSoftBrush}"
-                                        BorderBrush="#C4E5F5"
-                                        BorderThickness="1"
-                                        CornerRadius="10"
-                                        Padding="9,4">
-                                    <TextBlock Text="Étape 1 sur 2"
-                                               FontSize="10"
-                                               FontWeight="SemiBold"
-                                               Foreground="{StaticResource UfcvBlueDarkBrush}"/>
-                                </Border>
+                                <Grid Grid.Row="0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
 
-                                <StackPanel Grid.Row="1" Margin="0,10,0,0">
+                                    <Border Grid.Column="0"
+                                            HorizontalAlignment="Left"
+                                            Background="{StaticResource UfcvBlueSoftBrush}"
+                                            BorderBrush="#C4E5F5"
+                                            BorderThickness="1"
+                                            CornerRadius="10"
+                                            Padding="9,4">
+                                        <TextBlock Text="Étape 1 sur 2"
+                                                   FontSize="10"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{StaticResource UfcvBlueDarkBrush}"/>
+                                    </Border>
+
+                                    <TextBlock Name="PostponeCounter"
+                                               Grid.Column="1"
+                                               Text="Il vous reste 99 reports"
+                                               HorizontalAlignment="Right"
+                                               VerticalAlignment="Center"
+                                               FontSize="13"
+                                               FontWeight="SemiBold"
+                                               Foreground="{StaticResource SuccessBrush}"
+                                               TextWrapping="Wrap"/>
+                                </Grid>
+
+                                <StackPanel Grid.Row="2"
+                                            HorizontalAlignment="Center"
+                                            MaxWidth="620"
+                                            Margin="0,0,0,0">
                                     <TextBlock Text="Choisissez votre code PIN de démarrage"
                                                FontFamily="Bahnschrift SemiCondensed"
-                                               FontSize="22"
+                                               FontSize="26"
                                                FontWeight="Bold"
-                                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                                               Foreground="{StaticResource TextPrimaryBrush}"
+                                               TextAlignment="Center"/>
                                     <TextBlock Text="Ce code vous sera demandé au démarrage pour confirmer votre identité avant l'ouverture de Windows."
-                                               Margin="0,5,0,0"
-                                               FontSize="11"
+                                               Margin="0,6,0,0"
+                                               FontSize="12"
                                                Foreground="{StaticResource TextSecondaryBrush}"
+                                               TextAlignment="Center"
                                                TextWrapping="Wrap"
-                                               LineHeight="15"/>
+                                               LineHeight="17"/>
                                 </StackPanel>
 
-                                <Border Grid.Row="2"
-                                        Margin="0,10,0,0"
+                                <Border Grid.Row="3"
+                                        HorizontalAlignment="Center"
+                                        MaxWidth="650"
+                                        Margin="0,16,0,0"
                                         Background="{StaticResource InfoSoftBrush}"
                                         BorderBrush="#C6E5F4"
                                         BorderThickness="1"
                                         CornerRadius="10"
-                                        Padding="12,8">
+                                        Padding="13,8">
                                     <TextBlock Text="Il est fortement recommandé d'utiliser le même code PIN que celui déjà utilisé pour l'ouverture de votre session."
-                                               FontSize="11"
+                                               FontSize="11.5"
                                                FontWeight="SemiBold"
                                                Foreground="{StaticResource UfcvBlueDarkBrush}"
                                                TextWrapping="Wrap"
-                                               LineHeight="15"/>
+                                               LineHeight="16"/>
                                 </Border>
 
-                                <TextBlock Grid.Row="3"
-                                           Margin="0,10,0,0"
-                                           Text="Choisissez un code personnel de 6 à 20 chiffres, différent des suites simples."
-                                           FontSize="11"
-                                           Foreground="{StaticResource TextSecondaryBrush}"
-                                           TextWrapping="Wrap"
-                                           LineHeight="15"/>
-
-                                <Grid Grid.Row="4" Margin="0,12,0,0">
+                                <Grid Grid.Row="4"
+                                      HorizontalAlignment="Center"
+                                      Width="690"
+                                      Margin="0,20,0,0">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="14"/>
+                                        <ColumnDefinition Width="18"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <Grid.RowDefinitions>
@@ -655,16 +621,16 @@ $Xaml = @"
                                     <TextBlock Grid.Column="0"
                                                Grid.Row="0"
                                                Text="Code PIN"
-                                               Margin="0,0,0,6"
-                                               FontSize="11.5"
+                                               Margin="0,0,0,7"
+                                               FontSize="12.2"
                                                FontWeight="SemiBold"
                                                Foreground="{StaticResource TextPrimaryBrush}"/>
 
                                     <Border Name="PinInputBorder"
                                             Grid.Column="0"
                                             Grid.Row="1"
-                                            Height="42"
-                                            CornerRadius="10"
+                                            Height="50"
+                                            CornerRadius="12"
                                             BorderThickness="2"
                                             BorderBrush="{StaticResource InputBorderBrush}"
                                             Background="{StaticResource SurfaceAltBrush}">
@@ -675,16 +641,16 @@ $Xaml = @"
                                     <TextBlock Grid.Column="2"
                                                Grid.Row="0"
                                                Text="Confirmation du PIN"
-                                               Margin="0,0,0,6"
-                                               FontSize="11.5"
+                                               Margin="0,0,0,7"
+                                               FontSize="12.2"
                                                FontWeight="SemiBold"
                                                Foreground="{StaticResource TextPrimaryBrush}"/>
 
                                     <Border Name="PinConfirmBorder"
                                             Grid.Column="2"
                                             Grid.Row="1"
-                                            Height="42"
-                                            CornerRadius="10"
+                                            Height="50"
+                                            CornerRadius="12"
                                             BorderThickness="2"
                                             BorderBrush="{StaticResource InputBorderBrush}"
                                             Background="{StaticResource SurfaceAltBrush}">
@@ -694,7 +660,9 @@ $Xaml = @"
                                 </Grid>
 
                                 <Border Grid.Row="5"
-                                        Margin="0,10,0,0"
+                                        HorizontalAlignment="Center"
+                                        MaxWidth="690"
+                                        Margin="0,14,0,0"
                                         CornerRadius="10"
                                         BorderThickness="1"
                                         BorderBrush="{StaticResource BorderBrush}"
@@ -703,16 +671,16 @@ $Xaml = @"
                                         VerticalAlignment="Top">
                                     <TextBlock Name="PinStatusText"
                                                Text="Utilisez un code PIN personnel de 6 à 20 chiffres. Les suites simples comme 123456 ou 654321 ne sont pas autorisées."
-                                               FontSize="10.5"
+                                               FontSize="10.8"
                                                Foreground="{StaticResource TextSecondaryBrush}"
                                                TextWrapping="Wrap"
-                                               LineHeight="14"/>
+                                               LineHeight="14.5"/>
                                 </Border>
 
-                                <StackPanel Grid.Row="6"
+                                <StackPanel Grid.Row="7"
                                             Orientation="Horizontal"
                                             HorizontalAlignment="Right"
-                                            Margin="0,12,0,0">
+                                            Margin="0,14,0,0">
                                     <Button Name="PostponeButton"
                                             Content="Reporter"
                                             Width="136"
@@ -728,102 +696,19 @@ $Xaml = @"
                             <Grid Name="ProgressView" Visibility="Collapsed">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="*"/>
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
 
-                                <StackPanel Grid.Row="0">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="Configuration de sécurité"
-                                                   FontFamily="Bahnschrift SemiCondensed"
-                                                   FontSize="22"
-                                                   FontWeight="Bold"
-                                                   Foreground="{StaticResource TextPrimaryBrush}"
-                                                   VerticalAlignment="Center"/>
-                                        <Border Margin="12,0,0,0"
-                                                Background="{StaticResource UfcvBlueSoftBrush}"
-                                                BorderBrush="#C4E5F5"
-                                                BorderThickness="1"
-                                                CornerRadius="10"
-                                                Padding="8,3"
-                                                VerticalAlignment="Center">
-                                            <TextBlock Text="Étape 2 sur 2"
-                                                       FontSize="10"
-                                                       FontWeight="SemiBold"
-                                                       Foreground="{StaticResource UfcvBlueDarkBrush}"/>
-                                        </Border>
-                                    </StackPanel>
-                                    <TextBlock Text="La sécurisation du poste est en cours. Merci de laisser cette fenêtre ouverte jusqu'à la fin de l'opération."
-                                               Margin="0,5,0,0"
-                                               FontSize="11"
-                                               Foreground="{StaticResource TextSecondaryBrush}"
-                                               TextWrapping="Wrap"
-                                               LineHeight="15"/>
-                                </StackPanel>
+                                <TextBlock Grid.Row="0"
+                                           Text="Configuration de sécurité"
+                                           FontFamily="Bahnschrift SemiCondensed"
+                                           FontSize="24"
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource TextPrimaryBrush}"/>
 
                                 <Border Grid.Row="1"
-                                        Margin="0,10,0,0"
-                                        Background="{StaticResource InfoSoftBrush}"
-                                        BorderBrush="#C6E5F4"
-                                        BorderThickness="1"
-                                        CornerRadius="14"
-                                        Padding="14,10">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-
-                                        <TextBlock Name="SpinnerText"
-                                                   Grid.Column="0"
-                                                   Text="⟳"
-                                                   FontSize="24"
-                                                   FontWeight="SemiBold"
-                                                   Foreground="{StaticResource UfcvBlueDarkBrush}"
-                                                   Width="34"
-                                                   Height="34"
-                                                   TextAlignment="Center"
-                                                   HorizontalAlignment="Center"
-                                                   VerticalAlignment="Center"
-                                                   RenderTransformOrigin="0.5,0.5">
-                                            <TextBlock.RenderTransform>
-                                                <RotateTransform Angle="0"/>
-                                            </TextBlock.RenderTransform>
-                                            <TextBlock.Triggers>
-                                                <EventTrigger RoutedEvent="Loaded">
-                                                    <BeginStoryboard>
-                                                        <Storyboard RepeatBehavior="Forever">
-                                                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
-                                                                             From="0" To="360" Duration="0:0:1.1"/>
-                                                        </Storyboard>
-                                                    </BeginStoryboard>
-                                                </EventTrigger>
-                                            </TextBlock.Triggers>
-                                        </TextBlock>
-
-                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                            <TextBlock Name="ProgressStatus"
-                                                       Text="Veuillez patienter pendant la configuration…"
-                                                       FontSize="13"
-                                                       FontWeight="SemiBold"
-                                                       Foreground="{StaticResource TextPrimaryBrush}"
-                                                       TextWrapping="Wrap"
-                                                       LineHeight="17"/>
-                                            <TextBlock Text="Les détails techniques sont enregistrés dans le journal de diagnostic."
-                                                       Margin="0,3,0,0"
-                                                       FontSize="10.5"
-                                                       Foreground="{StaticResource TextSecondaryBrush}"
-                                                       TextWrapping="Wrap"/>
-                                        </StackPanel>
-
-                                        <TextBlock Name="ProgressPercent" Visibility="Collapsed" Text="0%"/>
-                                        <ProgressBar Name="ProgressBar" Visibility="Collapsed" Minimum="0" Maximum="100" Value="0" Style="{StaticResource ProgressBarStyle}"/>
-                                    </Grid>
-                                </Border>
-
-                                <Border Grid.Row="2"
-                                        Margin="0,8,0,0"
+                                        Margin="0,12,0,0"
                                         Background="{StaticResource SurfaceAltBrush}"
                                         BorderBrush="{StaticResource BorderBrush}"
                                         BorderThickness="1"
@@ -861,7 +746,7 @@ $Xaml = @"
                                                        HorizontalAlignment="Center"
                                                        VerticalAlignment="Top"
                                                        Stretch="Uniform"
-                                                       MaxHeight="250"
+                                                       MaxHeight="252"
                                                        RenderOptions.BitmapScalingMode="HighQuality"
                                                        SnapsToDevicePixels="True"/>
                                                 <TextBlock Name="PinPromptPreviewFallback"
@@ -923,23 +808,83 @@ $Xaml = @"
                                     </Grid>
                                 </Border>
 
-                                <StackPanel Grid.Row="3"
-                                            Orientation="Horizontal"
-                                            HorizontalAlignment="Right"
-                                            Margin="0,12,0,0">
-                                    <Button Name="PinPromptContinueButton"
-                                            Content="J'ai compris"
-                                            Width="150"
-                                            IsEnabled="False"
-                                            Visibility="Visible"
-                                            Style="{StaticResource PrimaryButton}"/>
-                                    <Button Name="FinishButton"
-                                            Content="Fermer"
-                                            Width="142"
-                                            Margin="8,0,0,0"
-                                            Visibility="Collapsed"
-                                            Style="{StaticResource PrimaryButton}"/>
-                                </StackPanel>
+                                <Grid Grid.Row="2" Margin="0,12,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Grid Grid.Column="0"
+                                          HorizontalAlignment="Stretch"
+                                          VerticalAlignment="Center"
+                                          Margin="0,0,14,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <Grid Name="SpinnerText"
+                                              Grid.Column="0"
+                                              Width="20"
+                                              Height="20"
+                                              Margin="0,0,9,0"
+                                              RenderTransformOrigin="0.5,0.5">
+                                            <Grid.RenderTransform>
+                                                <RotateTransform Angle="0"/>
+                                            </Grid.RenderTransform>
+                                            <Grid.Triggers>
+                                                <EventTrigger RoutedEvent="Loaded">
+                                                    <BeginStoryboard>
+                                                        <Storyboard RepeatBehavior="Forever">
+                                                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
+                                                                             From="0" To="360" Duration="0:0:1.1"/>
+                                                        </Storyboard>
+                                                    </BeginStoryboard>
+                                                </EventTrigger>
+                                            </Grid.Triggers>
+                                            <Ellipse Width="18"
+                                                     Height="18"
+                                                     HorizontalAlignment="Center"
+                                                     VerticalAlignment="Center"
+                                                     Stroke="{StaticResource UfcvBlueDarkBrush}"
+                                                     StrokeThickness="2.2"
+                                                     StrokeDashArray="2,2"
+                                                     StrokeStartLineCap="Round"
+                                                     StrokeEndLineCap="Round"/>
+                                        </Grid>
+
+                                        <TextBlock Name="ProgressStatus"
+                                                   Grid.Column="1"
+                                                   Text="Veuillez patienter pendant la configuration…"
+                                                   FontSize="12.5"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{StaticResource TextPrimaryBrush}"
+                                                   TextWrapping="Wrap"
+                                                   VerticalAlignment="Center"
+                                                   LineHeight="17"/>
+
+                                        <TextBlock Name="ProgressPercent" Grid.Column="1" Visibility="Collapsed" Text="0%"/>
+                                        <ProgressBar Name="ProgressBar" Grid.Column="1" Visibility="Collapsed" Minimum="0" Maximum="100" Value="0" Style="{StaticResource ProgressBarStyle}"/>
+                                    </Grid>
+
+                                    <StackPanel Grid.Column="1"
+                                                Orientation="Horizontal"
+                                                HorizontalAlignment="Right"
+                                                VerticalAlignment="Center">
+                                        <Button Name="PinPromptContinueButton"
+                                                Content="J'ai compris"
+                                                Width="150"
+                                                IsEnabled="False"
+                                                Visibility="Visible"
+                                                Style="{StaticResource PrimaryButton}"/>
+                                        <Button Name="FinishButton"
+                                                Content="Fermer"
+                                                Width="142"
+                                                Margin="8,0,0,0"
+                                                Visibility="Collapsed"
+                                                Style="{StaticResource PrimaryButton}"/>
+                                    </StackPanel>
+                                </Grid>
                             </Grid>
                         </Grid>
                     </Border>
@@ -1571,6 +1516,28 @@ $PinConfirm.Add_PasswordChanged({
     Update-ValidateButtonState
 })
 
+function Set-FocusedPinBorder {
+    param([System.Windows.Controls.Border]$Border)
+
+    if ($null -eq $Border) { return }
+    if ($Border.BorderBrush -eq $UiBrushes.InputBorder) {
+        $Border.BorderBrush = $UiBrushes.Info
+    }
+}
+
+$PinInput.Add_GotKeyboardFocus({
+    Set-FocusedPinBorder -Border $PinInputBorder
+})
+$PinInput.Add_LostKeyboardFocus({
+    Update-PinBorderColors
+})
+$PinConfirm.Add_GotKeyboardFocus({
+    Set-FocusedPinBorder -Border $PinConfirmBorder
+})
+$PinConfirm.Add_LostKeyboardFocus({
+    Update-PinBorderColors
+})
+
 # ==========================================================
 # UI helpers (thread-safe) + Progress
 # ==========================================================
@@ -1620,15 +1587,15 @@ function Set-BitLockerPinPromptPreviewImage {
 
 function Set-Step1Layout {
     Invoke-Ui {
-        $HeroBanner.Visibility = "Visible"
+        $HeroBanner.Visibility = "Collapsed"
         $PinView.Visibility = "Visible"
         $ProgressView.Visibility = "Collapsed"
-        $SidePanelPinView.Visibility = "Visible"
+        $SidePanelPinView.Visibility = "Collapsed"
         $SidePanelProgressView.Visibility = "Collapsed"
 
         if ($MainLayoutGrid.ColumnDefinitions.Count -ge 2) {
-            $MainLayoutGrid.ColumnDefinitions[0].Width = [System.Windows.GridLength]::new(0.94, [System.Windows.GridUnitType]::Star)
-            $MainLayoutGrid.ColumnDefinitions[1].Width = [System.Windows.GridLength]::new(2.18, [System.Windows.GridUnitType]::Star)
+            $MainLayoutGrid.ColumnDefinitions[0].Width = [System.Windows.GridLength]::new(0)
+            $MainLayoutGrid.ColumnDefinitions[1].Width = [System.Windows.GridLength]::new(1, [System.Windows.GridUnitType]::Star)
         }
     }
 }
