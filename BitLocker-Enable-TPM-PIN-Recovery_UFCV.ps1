@@ -775,11 +775,26 @@ $Xaml = @"
                                     </Grid.ColumnDefinitions>
 
                                     <StackPanel Grid.Column="0">
-                                        <TextBlock Text="Configuration BitLocker en cours"
-                                                   FontFamily="Bahnschrift SemiCondensed"
-                                                   FontSize="22"
-                                                   FontWeight="Bold"
-                                                   Foreground="{StaticResource TextPrimaryBrush}"/>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Configuration BitLocker en cours"
+                                                       FontFamily="Bahnschrift SemiCondensed"
+                                                       FontSize="22"
+                                                       FontWeight="Bold"
+                                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                                       VerticalAlignment="Center"/>
+                                            <Border Margin="12,0,0,0"
+                                                    Background="{StaticResource UfcvBlueSoftBrush}"
+                                                    BorderBrush="#C4E5F5"
+                                                    BorderThickness="1"
+                                                    CornerRadius="10"
+                                                    Padding="8,3"
+                                                    VerticalAlignment="Center">
+                                                <TextBlock Text="Étape 2 sur 2"
+                                                           FontSize="10"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="{StaticResource UfcvBlueDarkBrush}"/>
+                                            </Border>
+                                        </StackPanel>
                                         <TextBlock Text="La sécurisation du poste est en cours. Merci de laisser cette fenêtre ouverte jusqu'à la fin de l'opération."
                                                    Margin="0,5,0,0"
                                                    FontSize="11"
@@ -820,7 +835,6 @@ $Xaml = @"
                                         </Grid.RowDefinitions>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
@@ -833,23 +847,9 @@ $Xaml = @"
                                                    Foreground="{StaticResource TextPrimaryBrush}"
                                                    VerticalAlignment="Center"/>
 
-                                        <Border Grid.Row="0"
-                                                Grid.Column="1"
-                                                Margin="10,0,0,0"
-                                                Background="{StaticResource UfcvBlueSoftBrush}"
-                                                BorderBrush="#C4E5F5"
-                                                BorderThickness="1"
-                                                CornerRadius="10"
-                                                Padding="8,3">
-                                            <TextBlock Text="Étape 2 sur 2"
-                                                       FontSize="10"
-                                                       FontWeight="SemiBold"
-                                                       Foreground="{StaticResource UfcvBlueDarkBrush}"/>
-                                        </Border>
-
                                         <TextBlock Name="ProgressStatus"
                                                    Grid.Row="0"
-                                                   Grid.Column="2"
+                                                   Grid.Column="1"
                                                    Margin="12,0,12,0"
                                                    Text="Préparation..."
                                                    FontSize="11"
@@ -861,7 +861,7 @@ $Xaml = @"
 
                                         <TextBlock Name="ProgressPercent"
                                                    Grid.Row="0"
-                                                   Grid.Column="3"
+                                                   Grid.Column="2"
                                                    Text="0%"
                                                    FontSize="14"
                                                    FontWeight="SemiBold"
@@ -870,7 +870,7 @@ $Xaml = @"
 
                                         <ProgressBar Name="ProgressBar"
                                                      Grid.Row="1"
-                                                     Grid.ColumnSpan="4"
+                                                     Grid.ColumnSpan="3"
                                                      Margin="0,8,0,0"
                                                      Minimum="0"
                                                      Maximum="100"
