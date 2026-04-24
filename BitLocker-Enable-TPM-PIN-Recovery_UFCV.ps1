@@ -851,12 +851,12 @@ $Xaml = @"
                                 </Border>
 
                                 <Border Grid.Row="3"
-                                        Margin="0,10,0,0"
+                                        Margin="0,8,0,0"
                                         Background="{StaticResource SurfaceAltBrush}"
                                         BorderBrush="{StaticResource BorderBrush}"
                                         BorderThickness="1"
                                         CornerRadius="14"
-                                        Padding="12">
+                                        Padding="12,10">
                                     <Grid>
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto"/>
@@ -877,21 +877,21 @@ $Xaml = @"
 
                                         <Grid Grid.Row="1" Margin="0,8,0,0">
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="1.05*"/>
-                                                <ColumnDefinition Width="12"/>
-                                                <ColumnDefinition Width="1.15*"/>
+                                                <ColumnDefinition Width="1.32*"/>
+                                                <ColumnDefinition Width="16"/>
+                                                <ColumnDefinition Width="1*"/>
                                             </Grid.ColumnDefinitions>
 
                                             <Border Grid.Column="0"
                                                     Background="#EEF4F8"
-                                                    BorderBrush="{StaticResource BorderBrush}"
-                                                    BorderThickness="1"
-                                                    CornerRadius="11"
-                                                    Padding="8">
+                                                    CornerRadius="12"
+                                                    ClipToBounds="True">
                                                 <Grid>
                                                     <Image Name="PinPromptPreviewImage"
+                                                           HorizontalAlignment="Stretch"
+                                                           VerticalAlignment="Center"
                                                            Stretch="Uniform"
-                                                           MaxHeight="174"/>
+                                                           MaxHeight="252"/>
                                                     <TextBlock Name="PinPromptPreviewFallback"
                                                                Visibility="Collapsed"
                                                                Text="L'aperçu n'a pas pu être chargé, mais le principe de l'écran reste identique : un champ de saisie du code PIN BitLocker au démarrage."
@@ -917,10 +917,10 @@ $Xaml = @"
                                                         CornerRadius="11"
                                                         Padding="12,9">
                                                     <TextBlock Text="Au redémarrage, la demande du code PIN BitLocker ressemblera à cet écran. Cet aperçu vous permet de repérer plus facilement ce qui vous sera demandé."
-                                                               FontSize="10.5"
+                                                               FontSize="10.8"
                                                                Foreground="White"
                                                                TextWrapping="Wrap"
-                                                               LineHeight="14"/>
+                                                               LineHeight="15"/>
                                                 </Border>
 
                                                 <Border Grid.Row="1"
@@ -932,32 +932,57 @@ $Xaml = @"
                                                         Padding="12,9">
                                                     <StackPanel>
                                                         <TextBlock Text="Saisie du code PIN"
-                                                                   FontSize="10.8"
+                                                                   FontSize="11"
                                                                    FontWeight="SemiBold"
                                                                    Foreground="{StaticResource UfcvBlueDarkBrush}"/>
                                                         <TextBlock Text="Pour saisir les chiffres, il n'est pas nécessaire d'utiliser la touche Majuscule. Vous pouvez entrer directement votre code PIN demandé au démarrage."
                                                                    Margin="0,4,0,0"
-                                                                   FontSize="10.2"
+                                                                   FontSize="10.5"
                                                                    Foreground="{StaticResource TextPrimaryBrush}"
                                                                    TextWrapping="Wrap"
-                                                                   LineHeight="13.5"/>
+                                                                   LineHeight="14.5"/>
                                                     </StackPanel>
                                                 </Border>
 
-                                                <TextBlock Grid.Row="2"
-                                                           Margin="0,7,0,0"
-                                                           Text="Lorsque le poste est connecté en Ethernet au réseau UFCV, BitLocker Network Unlock peut déverrouiller automatiquement le poste au démarrage. Dans ce cas, l'écran de saisie du PIN peut ne pas apparaître et vous n'avez rien à faire. En dehors de ce contexte, la saisie manuelle du code PIN reste nécessaire pour protéger le poste UFCV au démarrage."
-                                                           FontSize="10.2"
-                                                           Foreground="{StaticResource TextSecondaryBrush}"
-                                                           TextWrapping="Wrap"
-                                                           LineHeight="13.5"/>
+                                                <Border Grid.Row="2"
+                                                        Margin="0,7,0,0"
+                                                        Background="{StaticResource SurfaceBrush}"
+                                                        BorderBrush="{StaticResource BorderBrush}"
+                                                        BorderThickness="1"
+                                                        CornerRadius="11"
+                                                        Padding="12,9">
+                                                    <StackPanel>
+                                                        <TextBlock Text="BitLocker Network Unlock"
+                                                                   FontSize="11"
+                                                                   FontWeight="SemiBold"
+                                                                   Foreground="{StaticResource TextPrimaryBrush}"/>
+                                                        <TextBlock Text="Lorsque le poste est connecté en Ethernet au réseau UFCV, BitLocker Network Unlock peut déverrouiller automatiquement le poste au démarrage."
+                                                                   Margin="0,4,0,0"
+                                                                   FontSize="10.5"
+                                                                   Foreground="{StaticResource TextPrimaryBrush}"
+                                                                   TextWrapping="Wrap"
+                                                                   LineHeight="14.5"/>
+                                                        <TextBlock Text="Dans ce cas, l'écran de saisie du PIN peut ne pas apparaître et vous n'avez rien à faire."
+                                                                   Margin="0,4,0,0"
+                                                                   FontSize="10.5"
+                                                                   Foreground="{StaticResource TextPrimaryBrush}"
+                                                                   TextWrapping="Wrap"
+                                                                   LineHeight="14.5"/>
+                                                        <TextBlock Text="En dehors de ce contexte, la saisie manuelle du code PIN reste nécessaire pour protéger le poste UFCV au démarrage."
+                                                                   Margin="0,4,0,0"
+                                                                   FontSize="10.5"
+                                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                                   TextWrapping="Wrap"
+                                                                   LineHeight="14.5"/>
+                                                    </StackPanel>
+                                                </Border>
 
                                                 <Button Name="PinPromptContinueButton"
                                                         Grid.Row="3"
                                                         Content="J'ai compris"
                                                         Width="150"
                                                         HorizontalAlignment="Right"
-                                                        Margin="0,7,0,0"
+                                                        Margin="0,8,0,0"
                                                         Style="{StaticResource PrimaryButton}"/>
                                             </Grid>
                                         </Grid>
@@ -1971,7 +1996,7 @@ function Set-Step2Layout {
         $PinView.Visibility = "Collapsed"
         $ProgressView.Visibility = "Visible"
         $SidePanelPinView.Visibility = "Collapsed"
-        $SidePanelProgressView.Visibility = "Visible"
+        $SidePanelProgressView.Visibility = "Collapsed"
 
         $PostponeButton.IsEnabled = $false
         $PostponeButton.Opacity   = 0.5
@@ -1979,8 +2004,8 @@ function Set-Step2Layout {
         $ValidateButton.Opacity   = 0.5
 
         if ($MainLayoutGrid.ColumnDefinitions.Count -ge 2) {
-            $MainLayoutGrid.ColumnDefinitions[0].Width = [System.Windows.GridLength]::new(2.95, [System.Windows.GridUnitType]::Star)
-            $MainLayoutGrid.ColumnDefinitions[1].Width = [System.Windows.GridLength]::new(0.65, [System.Windows.GridUnitType]::Star)
+            $MainLayoutGrid.ColumnDefinitions[0].Width = [System.Windows.GridLength]::new(1, [System.Windows.GridUnitType]::Star)
+            $MainLayoutGrid.ColumnDefinitions[1].Width = [System.Windows.GridLength]::new(0)
         }
     }
 
