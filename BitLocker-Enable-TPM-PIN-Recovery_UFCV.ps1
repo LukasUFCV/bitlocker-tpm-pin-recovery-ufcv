@@ -585,12 +585,13 @@ $Xaml = @"
                     </Border>
                 </Grid>
 
-                <Grid Grid.Row="1"
+                <Grid Name="MainLayoutGrid"
+                      Grid.Row="1"
                       Margin="20,12,20,18"
                       VerticalAlignment="Stretch">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="2.95*"/>
-                            <ColumnDefinition Width="0.65*"/>
+                            <ColumnDefinition Width="2.22*"/>
+                            <ColumnDefinition Width="0.92*"/>
                         </Grid.ColumnDefinitions>
 
                         <Border Grid.Column="0"
@@ -739,13 +740,6 @@ $Xaml = @"
                                                        Foreground="{StaticResource TextPrimaryBrush}"
                                                        TextWrapping="Wrap"
                                                        LineHeight="14"/>
-                                            <TextBlock Name="PostponeCounter"
-                                                       Text="Reports restants : 99/99"
-                                                       Margin="0,5,0,0"
-                                                       FontSize="10.5"
-                                                       FontWeight="SemiBold"
-                                                       Foreground="{StaticResource UfcvBlueDarkBrush}"
-                                                       TextWrapping="Wrap"/>
                                         </StackPanel>
 
                                         <StackPanel Grid.Column="1"
@@ -768,286 +762,323 @@ $Xaml = @"
                                 </Grid>
 
                                 <Grid Name="ProgressView" Visibility="Collapsed">
-                                    <Grid Name="PinPromptInfoView">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <Border Grid.Row="0"
+                                        HorizontalAlignment="Left"
+                                        Background="{StaticResource UfcvBlueSoftBrush}"
+                                        BorderBrush="#C4E5F5"
+                                        BorderThickness="1"
+                                        CornerRadius="10"
+                                        Padding="9,4">
+                                    <TextBlock Text="Étape 2 sur 2"
+                                               FontSize="10"
+                                               FontWeight="SemiBold"
+                                               Foreground="{StaticResource UfcvBlueDarkBrush}"/>
+                                </Border>
+
+                                <StackPanel Grid.Row="1" Margin="0,10,0,0">
+                                    <TextBlock Text="Configuration BitLocker en cours"
+                                               FontFamily="Bahnschrift SemiCondensed"
+                                               FontSize="22"
+                                               FontWeight="Bold"
+                                               Foreground="{StaticResource TextPrimaryBrush}"/>
+                                    <TextBlock Text="La sécurisation du poste est en cours. Merci de laisser cette fenêtre ouverte jusqu'à la fin de l'opération."
+                                               Margin="0,5,0,0"
+                                               FontSize="11"
+                                               Foreground="{StaticResource TextSecondaryBrush}"
+                                               TextWrapping="Wrap"
+                                               LineHeight="15"/>
+                                </StackPanel>
+
+                                <Border Grid.Row="2"
+                                        Margin="0,10,0,0"
+                                        Background="{StaticResource SurfaceAltBrush}"
+                                        BorderBrush="{StaticResource BorderBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="14"
+                                        Padding="14,11">
+                                    <Grid>
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock Grid.Row="0"
+                                                   Grid.Column="0"
+                                                   Text="Suivi de la configuration"
+                                                   FontSize="12"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{StaticResource TextPrimaryBrush}"/>
+
+                                        <TextBlock Name="ProgressPercent"
+                                                   Grid.Row="0"
+                                                   Grid.Column="1"
+                                                   Text="0%"
+                                                   FontSize="14"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{StaticResource UfcvBlueDarkBrush}"
+                                                   VerticalAlignment="Center"/>
+
+                                        <StackPanel Grid.Row="1"
+                                                    Grid.ColumnSpan="2"
+                                                    Margin="0,10,0,0">
+                                            <ProgressBar Name="ProgressBar"
+                                                         Minimum="0"
+                                                         Maximum="100"
+                                                         Value="0"
+                                                         Style="{StaticResource ProgressBarStyle}"/>
+                                            <TextBlock Name="ProgressStatus"
+                                                       Margin="0,8,0,0"
+                                                       Text="Préparation..."
+                                                       FontSize="11"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                                       TextWrapping="Wrap"
+                                                       LineHeight="15"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+
+                                <Border Grid.Row="3"
+                                        Margin="0,10,0,0"
+                                        Background="{StaticResource SurfaceAltBrush}"
+                                        BorderBrush="{StaticResource BorderBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="14"
+                                        Padding="12">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="*"/>
-                                            <RowDefinition Height="Auto"/>
                                         </Grid.RowDefinitions>
 
-                                        <Border Grid.Row="0"
-                                                HorizontalAlignment="Left"
-                                                Background="{StaticResource UfcvBlueSoftBrush}"
-                                                BorderBrush="#C4E5F5"
-                                                BorderThickness="1"
-                                                CornerRadius="10"
-                                                Padding="9,4">
-                                            <TextBlock Text="Étape 2 sur 2"
-                                                       FontSize="10"
-                                                       FontWeight="SemiBold"
-                                                       Foreground="{StaticResource UfcvBlueDarkBrush}"/>
-                                        </Border>
-
-                                        <StackPanel Grid.Row="1" Margin="0,8,0,0">
+                                        <StackPanel Grid.Row="0">
                                             <TextBlock Text="À quoi ressemblera la demande de code PIN ?"
                                                        FontFamily="Bahnschrift SemiCondensed"
-                                                       FontSize="21"
+                                                       FontSize="18"
                                                        FontWeight="Bold"
                                                        Foreground="{StaticResource TextPrimaryBrush}"/>
                                             <TextBlock Text="Écran BitLocker affiché au démarrage"
-                                                       Margin="0,2,0,0"
+                                                       Margin="0,1,0,0"
                                                        FontSize="10.5"
                                                        Foreground="{StaticResource TextSecondaryBrush}"/>
                                         </StackPanel>
 
-                                        <Border Grid.Row="2"
-                                                Margin="0,9,0,0"
-                                                Background="{StaticResource UfcvBlueBrush}"
-                                                CornerRadius="12"
-                                                Padding="13,10">
-                                            <TextBlock Text="Au redémarrage, la demande du code PIN BitLocker ressemblera à cet écran. Cet aperçu vous permet de repérer plus facilement ce qui vous sera demandé."
-                                                       FontSize="11"
-                                                       Foreground="White"
-                                                       TextWrapping="Wrap"
-                                                       LineHeight="16"/>
-                                        </Border>
-
-                                        <Grid Grid.Row="3" Margin="0,9,0,0">
+                                        <Grid Grid.Row="1" Margin="0,8,0,0">
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="1.12*"/>
-                                                <ColumnDefinition Width="10"/>
-                                                <ColumnDefinition Width="0.88*"/>
+                                                <ColumnDefinition Width="1.05*"/>
+                                                <ColumnDefinition Width="12"/>
+                                                <ColumnDefinition Width="1.15*"/>
                                             </Grid.ColumnDefinitions>
 
                                             <Border Grid.Column="0"
-                                                    Background="{StaticResource SurfaceAltBrush}"
+                                                    Background="#EEF4F8"
                                                     BorderBrush="{StaticResource BorderBrush}"
                                                     BorderThickness="1"
-                                                    CornerRadius="12"
-                                                    Padding="12">
-                                                <StackPanel>
-                                                    <TextBlock Text="Aperçu de l'écran"
-                                                               FontSize="11.5"
-                                                               FontWeight="SemiBold"
-                                                               Foreground="{StaticResource TextPrimaryBrush}"/>
-                                                    <Border Margin="0,8,0,0"
-                                                            Background="#EEF4F8"
-                                                            BorderBrush="{StaticResource BorderBrush}"
-                                                            BorderThickness="1"
-                                                            CornerRadius="10"
-                                                            Padding="8">
-                                                        <Grid>
-                                                            <Image Name="PinPromptPreviewImage"
-                                                                   Stretch="Uniform"
-                                                                   MaxHeight="192"/>
-                                                            <TextBlock Name="PinPromptPreviewFallback"
-                                                                       Visibility="Collapsed"
-                                                                       Text="L'aperçu n'a pas pu être chargé, mais le principe de l'écran reste identique : un champ de saisie du code PIN BitLocker au démarrage."
-                                                                       FontSize="10.5"
-                                                                       Foreground="{StaticResource TextSecondaryBrush}"
-                                                                       TextWrapping="Wrap"
-                                                                       LineHeight="15"
-                                                                       VerticalAlignment="Center"
-                                                                       HorizontalAlignment="Center"/>
-                                                        </Grid>
-                                                    </Border>
-                                                </StackPanel>
+                                                    CornerRadius="11"
+                                                    Padding="8">
+                                                <Grid>
+                                                    <Image Name="PinPromptPreviewImage"
+                                                           Stretch="Uniform"
+                                                           MaxHeight="174"/>
+                                                    <TextBlock Name="PinPromptPreviewFallback"
+                                                               Visibility="Collapsed"
+                                                               Text="L'aperçu n'a pas pu être chargé, mais le principe de l'écran reste identique : un champ de saisie du code PIN BitLocker au démarrage."
+                                                               FontSize="10.5"
+                                                               Foreground="{StaticResource TextSecondaryBrush}"
+                                                               TextWrapping="Wrap"
+                                                               LineHeight="15"
+                                                               VerticalAlignment="Center"
+                                                               HorizontalAlignment="Center"/>
+                                                </Grid>
                                             </Border>
 
-                                            <StackPanel Grid.Column="2">
-                                                <Border Background="{StaticResource UfcvBlueSoftBrush}"
-                                                        BorderBrush="#C6E5F4"
-                                                        BorderThickness="1"
-                                                        CornerRadius="11"
-                                                        Padding="12,10">
-                                                    <StackPanel>
-                                                        <TextBlock Text="Saisie du code PIN"
-                                                                   FontSize="11.5"
-                                                                   FontWeight="SemiBold"
-                                                                   Foreground="{StaticResource UfcvBlueDarkBrush}"/>
-                                                        <TextBlock Text="Pour saisir les chiffres, il n'est pas nécessaire d'utiliser la touche Majuscule. Vous pouvez entrer directement votre code PIN demandé au démarrage."
-                                                                   Margin="0,6,0,0"
-                                                                   FontSize="10.3"
-                                                                   Foreground="{StaticResource TextPrimaryBrush}"
-                                                                   TextWrapping="Wrap"
-                                                                   LineHeight="14"/>
-                                                    </StackPanel>
-                                                </Border>
-
-                                                <Border Margin="0,8,0,0"
-                                                        Background="{StaticResource SurfaceAltBrush}"
-                                                        BorderBrush="{StaticResource BorderBrush}"
-                                                        BorderThickness="1"
-                                                        CornerRadius="11"
-                                                        Padding="12,10">
-                                                    <StackPanel>
-                                                        <TextBlock Text="BitLocker Network Unlock"
-                                                                   FontSize="11.5"
-                                                                   FontWeight="SemiBold"
-                                                                   Foreground="{StaticResource TextPrimaryBrush}"/>
-                                                        <TextBlock Text="Lorsque le poste est connecté en Ethernet au réseau UFCV, BitLocker Network Unlock peut déverrouiller automatiquement le poste au démarrage."
-                                                                   Margin="0,6,0,0"
-                                                                   FontSize="10.3"
-                                                                   Foreground="{StaticResource TextPrimaryBrush}"
-                                                                   TextWrapping="Wrap"
-                                                                   LineHeight="14"/>
-                                                        <TextBlock Text="Dans ce cas, l'écran de saisie du PIN peut ne pas apparaître et vous n'avez rien à faire."
-                                                                   Margin="0,5,0,0"
-                                                                   FontSize="10.3"
-                                                                   Foreground="{StaticResource TextPrimaryBrush}"
-                                                                   TextWrapping="Wrap"
-                                                                   LineHeight="14"/>
-                                                        <TextBlock Text="En dehors de ce contexte, la saisie manuelle du code PIN reste nécessaire pour protéger le poste UFCV au démarrage."
-                                                                   Margin="0,5,0,0"
-                                                                   FontSize="10.3"
-                                                                   Foreground="{StaticResource TextSecondaryBrush}"
-                                                                   TextWrapping="Wrap"
-                                                                   LineHeight="14"/>
-                                                    </StackPanel>
-                                                </Border>
-                                            </StackPanel>
-                                        </Grid>
-
-                                        <StackPanel Grid.Row="4"
-                                                    Orientation="Horizontal"
-                                                    HorizontalAlignment="Right"
-                                                    Margin="0,10,0,0">
-                                            <Button Name="PinPromptContinueButton"
-                                                    Content="J'ai compris"
-                                                    Width="150"
-                                                    Style="{StaticResource PrimaryButton}"/>
-                                        </StackPanel>
-                                    </Grid>
-
-                                    <Grid Name="ProvisioningStatusView" Visibility="Collapsed">
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="*"/>
-                                            <RowDefinition Height="Auto"/>
-                                        </Grid.RowDefinitions>
-
-                                        <Border Grid.Row="0"
-                                                HorizontalAlignment="Left"
-                                                Background="{StaticResource UfcvBlueSoftBrush}"
-                                                BorderBrush="#C4E5F5"
-                                                BorderThickness="1"
-                                                CornerRadius="10"
-                                                Padding="9,4">
-                                            <TextBlock Text="Étape 2 sur 2"
-                                                       FontSize="10"
-                                                       FontWeight="SemiBold"
-                                                       Foreground="{StaticResource UfcvBlueDarkBrush}"/>
-                                        </Border>
-
-                                        <StackPanel Grid.Row="1" Margin="0,10,0,0">
-                                            <TextBlock Text="Configuration BitLocker en cours"
-                                                       FontFamily="Bahnschrift SemiCondensed"
-                                                       FontSize="22"
-                                                       FontWeight="Bold"
-                                                       Foreground="{StaticResource TextPrimaryBrush}"/>
-                                            <TextBlock Text="La sécurisation du poste est en cours. Merci de laisser cette fenêtre ouverte jusqu'à la fin de l'opération."
-                                                       Margin="0,5,0,0"
-                                                       FontSize="11"
-                                                       Foreground="{StaticResource TextSecondaryBrush}"
-                                                       TextWrapping="Wrap"
-                                                       LineHeight="15"/>
-                                        </StackPanel>
-
-                                        <Border Grid.Row="2"
-                                                Margin="0,12,0,0"
-                                                Background="{StaticResource SurfaceAltBrush}"
-                                                BorderBrush="{StaticResource BorderBrush}"
-                                                BorderThickness="1"
-                                                CornerRadius="14"
-                                                Padding="15,13">
-                                            <Grid>
+                                            <Grid Grid.Column="2">
                                                 <Grid.RowDefinitions>
                                                     <RowDefinition Height="Auto"/>
                                                     <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="*"/>
+                                                    <RowDefinition Height="Auto"/>
                                                 </Grid.RowDefinitions>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                </Grid.ColumnDefinitions>
 
-                                                <TextBlock Grid.Row="0"
-                                                           Grid.Column="0"
-                                                           Text="Suivi de la configuration"
-                                                           FontSize="12"
-                                                           FontWeight="SemiBold"
-                                                           Foreground="{StaticResource TextPrimaryBrush}"/>
-
-                                                <TextBlock Name="ProgressPercent"
-                                                           Grid.Row="0"
-                                                           Grid.Column="1"
-                                                           Text="0%"
-                                                           FontSize="14"
-                                                           FontWeight="SemiBold"
-                                                           Foreground="{StaticResource UfcvBlueDarkBrush}"
-                                                           VerticalAlignment="Center"/>
-
-                                                <StackPanel Grid.Row="1"
-                                                            Grid.ColumnSpan="2"
-                                                            Margin="0,10,0,0">
-                                                    <ProgressBar Name="ProgressBar"
-                                                                 Minimum="0"
-                                                                 Maximum="100"
-                                                                 Value="0"
-                                                                 Style="{StaticResource ProgressBarStyle}"/>
-                                                    <TextBlock Name="ProgressStatus"
-                                                               Margin="0,8,0,0"
-                                                               Text="Préparation..."
-                                                               FontSize="12"
-                                                               FontWeight="SemiBold"
-                                                               Foreground="{StaticResource TextPrimaryBrush}"
+                                                <Border Grid.Row="0"
+                                                        Background="{StaticResource UfcvBlueBrush}"
+                                                        CornerRadius="11"
+                                                        Padding="12,9">
+                                                    <TextBlock Text="Au redémarrage, la demande du code PIN BitLocker ressemblera à cet écran. Cet aperçu vous permet de repérer plus facilement ce qui vous sera demandé."
+                                                               FontSize="10.5"
+                                                               Foreground="White"
                                                                TextWrapping="Wrap"
-                                                               LineHeight="16"/>
-                                                </StackPanel>
-                                            </Grid>
-                                        </Border>
+                                                               LineHeight="14"/>
+                                                </Border>
 
-                                        <Border Grid.Row="3"
-                                                Margin="0,12,0,0"
-                                                Background="{StaticResource UfcvBlueSoftBrush}"
-                                                BorderBrush="#C6E5F4"
-                                                BorderThickness="1"
-                                                CornerRadius="14"
-                                                Padding="16,14">
-                                            <StackPanel VerticalAlignment="Center">
-                                                <TextBlock Text="Opération en cours"
-                                                           FontFamily="Bahnschrift SemiCondensed"
-                                                           FontSize="18"
-                                                           FontWeight="Bold"
-                                                           Foreground="{StaticResource UfcvBlueDarkBrush}"/>
-                                                <TextBlock Text="L'outil applique la protection BitLocker au poste UFCV. Un journal de diagnostic est conservé pour l'équipe informatique."
-                                                           Margin="0,6,0,0"
-                                                           FontSize="11"
-                                                           Foreground="{StaticResource TextPrimaryBrush}"
+                                                <Border Grid.Row="1"
+                                                        Margin="0,7,0,0"
+                                                        Background="{StaticResource UfcvBlueSoftBrush}"
+                                                        BorderBrush="#C6E5F4"
+                                                        BorderThickness="1"
+                                                        CornerRadius="11"
+                                                        Padding="12,9">
+                                                    <StackPanel>
+                                                        <TextBlock Text="Saisie du code PIN"
+                                                                   FontSize="10.8"
+                                                                   FontWeight="SemiBold"
+                                                                   Foreground="{StaticResource UfcvBlueDarkBrush}"/>
+                                                        <TextBlock Text="Pour saisir les chiffres, il n'est pas nécessaire d'utiliser la touche Majuscule. Vous pouvez entrer directement votre code PIN demandé au démarrage."
+                                                                   Margin="0,4,0,0"
+                                                                   FontSize="10.2"
+                                                                   Foreground="{StaticResource TextPrimaryBrush}"
+                                                                   TextWrapping="Wrap"
+                                                                   LineHeight="13.5"/>
+                                                    </StackPanel>
+                                                </Border>
+
+                                                <TextBlock Grid.Row="2"
+                                                           Margin="0,7,0,0"
+                                                           Text="Lorsque le poste est connecté en Ethernet au réseau UFCV, BitLocker Network Unlock peut déverrouiller automatiquement le poste au démarrage. Dans ce cas, l'écran de saisie du PIN peut ne pas apparaître et vous n'avez rien à faire. En dehors de ce contexte, la saisie manuelle du code PIN reste nécessaire pour protéger le poste UFCV au démarrage."
+                                                           FontSize="10.2"
+                                                           Foreground="{StaticResource TextSecondaryBrush}"
                                                            TextWrapping="Wrap"
-                                                           LineHeight="16"/>
-                                            </StackPanel>
-                                        </Border>
+                                                           LineHeight="13.5"/>
 
-                                        <StackPanel Grid.Row="4"
-                                                    Orientation="Horizontal"
-                                                    HorizontalAlignment="Right"
-                                                    Margin="0,10,0,0">
-                                            <Button Name="FinishButton"
-                                                    Content="Fermer"
-                                                    Width="142"
-                                                    Visibility="Collapsed"
-                                                    Style="{StaticResource PrimaryButton}"/>
-                                        </StackPanel>
+                                                <Button Name="PinPromptContinueButton"
+                                                        Grid.Row="3"
+                                                        Content="J'ai compris"
+                                                        Width="150"
+                                                        HorizontalAlignment="Right"
+                                                        Margin="0,7,0,0"
+                                                        Style="{StaticResource PrimaryButton}"/>
+                                            </Grid>
+                                        </Grid>
                                     </Grid>
+                                </Border>
+
+                                <StackPanel Grid.Row="4"
+                                            Orientation="Horizontal"
+                                            HorizontalAlignment="Right"
+                                            Margin="0,10,0,0">
+                                    <Button Name="FinishButton"
+                                            Content="Fermer"
+                                            Width="142"
+                                            Visibility="Collapsed"
+                                            Style="{StaticResource PrimaryButton}"/>
+                                </StackPanel>
                                 </Grid>
                             </Grid>
                         </Border>
 
-                        <Border Grid.Column="1"
+                        <Border Name="SidePanelPinView"
+                                Grid.Column="1"
+                                VerticalAlignment="Stretch"
+                                Margin="12,0,0,0"
+                                Background="{StaticResource SurfaceBrush}"
+                                BorderBrush="{StaticResource BorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="14"
+                                Padding="15,13">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0"
+                                           Text="À quoi ça sert ?"
+                                           FontFamily="Bahnschrift SemiCondensed"
+                                           FontSize="17"
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource TextPrimaryBrush}"/>
+
+                                <TextBlock Grid.Row="1"
+                                           Margin="0,6,0,0"
+                                           Text="Cette opération sert à protéger le poste UFCV. BitLocker chiffre les données de l'ordinateur pour mieux sécuriser les informations en cas de perte, de vol ou d'accès non autorisé. Le code PIN demandé renforce cette protection au démarrage."
+                                           FontSize="10.5"
+                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           TextWrapping="Wrap"
+                                           LineHeight="14"/>
+
+                                <Border Grid.Row="2"
+                                        Margin="0,10,0,0"
+                                        Background="{StaticResource UfcvBlueSoftBrush}"
+                                        BorderBrush="#C6E5F4"
+                                        BorderThickness="1"
+                                        CornerRadius="11"
+                                        Padding="12,10">
+                                    <StackPanel>
+                                        <TextBlock Text="Pendant l'opération"
+                                                   FontSize="11"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{StaticResource UfcvBlueDarkBrush}"/>
+                                        <TextBlock Text="Laissez la fenêtre ouverte pendant la configuration."
+                                                   Margin="0,6,0,0"
+                                                   FontSize="10.5"
+                                                   Foreground="{StaticResource TextPrimaryBrush}"
+                                                   TextWrapping="Wrap"
+                                                   LineHeight="14"/>
+                                        <TextBlock Text="Un redémarrage peut être requis pour finaliser l'activation."
+                                                   Margin="0,4,0,0"
+                                                   FontSize="10.5"
+                                                   Foreground="{StaticResource TextPrimaryBrush}"
+                                                   TextWrapping="Wrap"
+                                                   LineHeight="14"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Grid.Row="4"
+                                        Margin="0,10,0,0"
+                                        Height="1"
+                                        Background="{StaticResource BorderBrush}"/>
+
+                                <TextBlock Grid.Row="5"
+                                           Margin="0,10,0,0"
+                                           Text="Disponibilité"
+                                           FontFamily="Bahnschrift SemiCondensed"
+                                           FontSize="17"
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource TextPrimaryBrush}"/>
+
+                                <StackPanel Grid.Row="6" Margin="0,6,0,0">
+                                    <TextBlock Name="PostponeCounter"
+                                               Text="Reports restants : 99/99"
+                                               FontSize="16"
+                                               FontWeight="SemiBold"
+                                               Foreground="{StaticResource UfcvBlueDarkBrush}"
+                                               TextWrapping="Wrap"/>
+                                    <TextBlock Text="Si nécessaire, l'opération peut être reportée dans la limite autorisée."
+                                               Margin="0,6,0,0"
+                                               FontSize="10.5"
+                                               Foreground="{StaticResource TextSecondaryBrush}"
+                                               TextWrapping="Wrap"
+                                               LineHeight="14"/>
+                                    <TextBlock Text="La fermeture est bloquée dès que la configuration BitLocker démarre."
+                                               Margin="0,8,0,0"
+                                               FontSize="10.5"
+                                               Foreground="{StaticResource TextMutedBrush}"
+                                               TextWrapping="Wrap"
+                                               LineHeight="14"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <Border Name="SidePanelProgressView"
+                                Grid.Column="1"
+                                Visibility="Collapsed"
                                 VerticalAlignment="Stretch"
                                 Margin="12,0,0,0"
                                 Background="{StaticResource SurfaceBrush}"
@@ -1146,12 +1177,13 @@ $PostponeCounter  = $Window.FindName("PostponeCounter")
 $LogoImage        = $Window.FindName("LogoImage")
 $LogoFallback     = $Window.FindName("LogoFallback")
 $HeroBanner       = $Window.FindName("HeroBanner")
+$MainLayoutGrid   = $Window.FindName("MainLayoutGrid")
+$SidePanelPinView = $Window.FindName("SidePanelPinView")
+$SidePanelProgressView = $Window.FindName("SidePanelProgressView")
 
 # Progress UI controls
 $PinView                  = $Window.FindName("PinView")
 $ProgressView             = $Window.FindName("ProgressView")
-$PinPromptInfoView        = $Window.FindName("PinPromptInfoView")
-$ProvisioningStatusView   = $Window.FindName("ProvisioningStatusView")
 $PinPromptPreviewImage    = $Window.FindName("PinPromptPreviewImage")
 $PinPromptPreviewFallback = $Window.FindName("PinPromptPreviewFallback")
 $PinPromptContinueButton  = $Window.FindName("PinPromptContinueButton")
@@ -1161,7 +1193,7 @@ $ProgressStatus           = $Window.FindName("ProgressStatus")
 $FinishButton             = $Window.FindName("FinishButton")
 
 if (-not $PinInput -or -not $PinConfirm -or -not $PinInputBorder -or -not $PinConfirmBorder -or -not $PinStatusText -or -not $ValidateButton -or -not $PostponeButton -or -not $PostponeCounter -or -not $LogoImage -or -not $LogoFallback `
-    -or -not $HeroBanner -or -not $PinView -or -not $ProgressView -or -not $PinPromptInfoView -or -not $ProvisioningStatusView -or -not $PinPromptPreviewImage -or -not $PinPromptPreviewFallback `
+    -or -not $HeroBanner -or -not $MainLayoutGrid -or -not $SidePanelPinView -or -not $SidePanelProgressView -or -not $PinView -or -not $ProgressView -or -not $PinPromptPreviewImage -or -not $PinPromptPreviewFallback `
     -or -not $PinPromptContinueButton -or -not $ProgressBar -or -not $ProgressPercent -or -not $ProgressStatus -or -not $FinishButton) {
     Write-Error "Échec de récupération des contrôles XAML. Le XAML peut être corrompu."
     exit 1
@@ -1316,6 +1348,8 @@ $script:Pin = $null
 $script:IsProvisioning = $false
 $script:RestartPromptShown = $false
 $script:BitLockerPinPromptPreviewBitmap = $null
+$script:PinPromptAcknowledged = $false
+$script:PendingRestartPrompt = $false
 
 # Couleur compteur selon urgence
 if ($RemainingPostpones -le 1) {
@@ -1916,20 +1950,38 @@ function Set-BitLockerPinPromptPreviewImage {
     }
 }
 
-function Show-PinPromptInfoUi {
+function Set-Step1Layout {
+    Invoke-Ui {
+        $HeroBanner.Visibility = "Visible"
+        $PinView.Visibility = "Visible"
+        $ProgressView.Visibility = "Collapsed"
+        $SidePanelPinView.Visibility = "Visible"
+        $SidePanelProgressView.Visibility = "Collapsed"
+
+        if ($MainLayoutGrid.ColumnDefinitions.Count -ge 2) {
+            $MainLayoutGrid.ColumnDefinitions[0].Width = [System.Windows.GridLength]::new(2.22, [System.Windows.GridUnitType]::Star)
+            $MainLayoutGrid.ColumnDefinitions[1].Width = [System.Windows.GridLength]::new(0.92, [System.Windows.GridUnitType]::Star)
+        }
+    }
+}
+
+function Set-Step2Layout {
     Invoke-Ui {
         $HeroBanner.Visibility = "Collapsed"
-        $PinView.Visibility      = "Collapsed"
+        $PinView.Visibility = "Collapsed"
         $ProgressView.Visibility = "Visible"
-        $PinPromptInfoView.Visibility = "Visible"
-        $ProvisioningStatusView.Visibility = "Collapsed"
+        $SidePanelPinView.Visibility = "Collapsed"
+        $SidePanelProgressView.Visibility = "Visible"
 
         $PostponeButton.IsEnabled = $false
         $PostponeButton.Opacity   = 0.5
         $ValidateButton.IsEnabled = $false
         $ValidateButton.Opacity   = 0.5
-        $PinPromptContinueButton.IsEnabled = $true
-        $FinishButton.Visibility = "Collapsed"
+
+        if ($MainLayoutGrid.ColumnDefinitions.Count -ge 2) {
+            $MainLayoutGrid.ColumnDefinitions[0].Width = [System.Windows.GridLength]::new(2.95, [System.Windows.GridUnitType]::Star)
+            $MainLayoutGrid.ColumnDefinitions[1].Width = [System.Windows.GridLength]::new(0.65, [System.Windows.GridUnitType]::Star)
+        }
     }
 
     Set-BitLockerPinPromptPreviewImage
@@ -1937,18 +1989,9 @@ function Show-PinPromptInfoUi {
 
 function Show-ProgressUi {
     Invoke-Ui {
-        $HeroBanner.Visibility = "Collapsed"
-        $PinView.Visibility      = "Collapsed"
-        $ProgressView.Visibility = "Visible"
-        $PinPromptInfoView.Visibility = "Collapsed"
-        $ProvisioningStatusView.Visibility = "Visible"
-
-        # Bloquer actions pendant provisioning
-        $PostponeButton.IsEnabled = $false
-        $PostponeButton.Opacity   = 0.5
-        $ValidateButton.IsEnabled = $false
-        $ValidateButton.Opacity   = 0.5
-        $PinPromptContinueButton.IsEnabled = $false
+        Set-Step2Layout
+        $PinPromptContinueButton.Content = if ($script:PinPromptAcknowledged) { "Compris" } else { "J'ai compris" }
+        $PinPromptContinueButton.IsEnabled = -not $script:PinPromptAcknowledged
         $ProgressBar.Value = 0
         $ProgressPercent.Text = "0%"
         $ProgressPercent.Foreground = $UiBrushes.Info
@@ -2050,6 +2093,36 @@ function Complete-Ui([string]$finalStatus, [bool]$isError = $false, [string]$sta
     }
 
     Add-StepLine -text $finalStatus -tag $state
+}
+
+function Invoke-RestartPromptGate {
+    if (-not $script:PinPromptAcknowledged) {
+        $script:PendingRestartPrompt = $true
+        Invoke-Ui {
+            $FinishButton.Visibility = "Collapsed"
+            $PinPromptContinueButton.IsEnabled = $true
+            $PinPromptContinueButton.Content = "J'ai compris"
+            $ProgressStatus.Text = "Configuration terminée. Merci de valider les informations avant le redémarrage."
+            $ProgressStatus.Foreground = $UiBrushes.Success
+        }
+        Add-StepLine -text "Configuration terminée. En attente de validation de l'information PIN BitLocker avant redémarrage." -tag "info"
+        return
+    }
+
+    $script:PendingRestartPrompt = $false
+    $restartChoice = Show-RestartPrompt
+    if ($restartChoice -eq "restart") {
+        $script:UserAction = "Validated"
+        if ($Window.IsVisible) {
+            $Window.DialogResult = $true
+            $Window.Close()
+        }
+    } else {
+        Invoke-Ui {
+            $FinishButton.Visibility = "Visible"
+            $FinishButton.IsEnabled = $true
+        }
+    }
 }
 
 # ==========================================================
@@ -2295,14 +2368,7 @@ function Start-BitLockerProvisioningAsync {
             }
 
             if ($showRestartPrompt) {
-                $restartChoice = Show-RestartPrompt
-                if ($restartChoice -eq "restart") {
-                    $script:UserAction = "Validated"
-                    if ($Window.IsVisible) {
-                        $Window.DialogResult = $true
-                        $Window.Close()
-                    }
-                }
+                Invoke-RestartPromptGate
             }
         }
     })
@@ -2333,30 +2399,33 @@ $ValidateButton.Add_Click({
     }
 
     try {
-        $script:UserAction = $null
+        $script:UserAction = "Provisioning"
         $script:Pin = $pin
-        Show-PinPromptInfoUi
+        $script:PinPromptAcknowledged = $false
+        $script:PendingRestartPrompt = $false
+        $script:RestartPromptShown = $false
+        Start-BitLockerProvisioningAsync -PlainPin $pin
     } catch {
         Complete-Ui -finalStatus ("Erreur interne : " + $_.Exception.Message) -isError $true
     }
 })
 
 $PinPromptContinueButton.Add_Click({
-    if ($script:IsProvisioning) {
+    if ($script:PinPromptAcknowledged) {
         return
     }
 
-    if ([string]::IsNullOrWhiteSpace($script:Pin)) {
-        $PinView.Visibility = "Visible"
-        $ProgressView.Visibility = "Collapsed"
-        $HeroBanner.Visibility = "Visible"
-        Set-PinStatus -Text "Veuillez saisir et confirmer le code PIN avant de lancer l'activation." -Foreground $UiBrushes.Warning
-        return
+    $script:PinPromptAcknowledged = $true
+    Add-StepLine -text "Information PIN BitLocker validée par l'utilisateur." -tag "info"
+
+    Invoke-Ui {
+        $PinPromptContinueButton.IsEnabled = $false
+        $PinPromptContinueButton.Content = "Compris"
     }
 
-    $PinPromptContinueButton.IsEnabled = $false
-    $script:UserAction = "Provisioning"
-    Start-BitLockerProvisioningAsync -PlainPin $script:Pin
+    if ($script:PendingRestartPrompt -and -not $script:IsProvisioning) {
+        Invoke-RestartPromptGate
+    }
 })
 
 $PostponeButton.Add_Click({
@@ -2382,6 +2451,19 @@ $Window.Add_Closing({
     if ($script:IsProvisioning) {
         $e.Cancel = $true
         Add-StepLine -text "Merci de patienter : la configuration BitLocker est toujours en cours." -tag "warn"
+        return
+    }
+
+    # Succès en attente : l'utilisateur doit valider l'information PIN avant l'étape de redémarrage.
+    if ($script:PendingRestartPrompt -and -not $script:PinPromptAcknowledged) {
+        $e.Cancel = $true
+        Invoke-Ui {
+            $FinishButton.Visibility = "Collapsed"
+            $PinPromptContinueButton.IsEnabled = $true
+            $ProgressStatus.Text = "Merci de valider les informations avant le redémarrage."
+            $ProgressStatus.Foreground = $UiBrushes.Warning
+        }
+        Add-StepLine -text "Fermeture bloquée : information PIN BitLocker non validée avant redémarrage." -tag "warn"
         return
     }
 
